@@ -1,4 +1,3 @@
-Of course. Here is a comprehensive README file for your GitHub repository, based on the code you've provided.
 
 # VoltVisor: AI-Powered Energy Intelligence Platform
 
