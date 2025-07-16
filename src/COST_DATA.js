@@ -12,15 +12,15 @@ export const COST_DATA = {
         wind: 3.50,   // PPA/LCOE for wind in India
         hydro: 4.00   // Average cost for hydro power
     },
-    "Chattanooga": {
-        currency: 'USD',
-        currencySymbol: '$',
+    "Nashik": {
+        currency: 'INR',
+        currencySymbol: '₹',
         grid: 0.13, // Average commercial rate in Tennessee
         solar: 0.06,  // PPA/LCOE for solar in the US
         wind: 0.05,   // PPA/LCOE for wind in the US
         hydro: 0.07   // Average cost for hydro power
     },
-    "Chennai": {
+    "Haridwar": {
         currency: 'INR',
         currencySymbol: '₹',
         grid: 9.50,  // Average commercial/industrial rate in Tamil Nadu
@@ -28,17 +28,17 @@ export const COST_DATA = {
         wind: 3.60,   // PPA/LCOE for wind in India
         hydro: 4.00
     },
-    "Piedimonte San Germano": {
-        currency: 'EUR',
-        currencySymbol: '€',
+    "Zaheerabad": {
+        currency: 'INR',
+        currencySymbol: '₹',
         grid: 0.22, // Average for non-household consumers in Italy
         solar: 0.08,  // PPA/LCOE for solar in Italy
         wind: 0.09,   // PPA/LCOE for wind in Italy
         hydro: 0.10
     },
-    "Sindelfingen": {
-        currency: 'EUR',
-        currencySymbol: '€',
+    "Mumbai": {
+        currency: 'INR',
+        currencySymbol: '₹',
         grid: 0.25, // Average for non-household consumers in Germany
         solar: 0.07,  // PPA/LCOE for solar in Germany
         wind: 0.08,   // PPA/LCOE for wind in Germany

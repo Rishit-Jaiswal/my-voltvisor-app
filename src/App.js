@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 // ... other imports
 // Add this with your other imports at the top of App.js
 import { COST_DATA } from './COST_DATA';import { Money } from 'lucide-react'; // Add Money or another icon for the new tab
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, AreaChart, Area, PieChart, Pie, Cell, Label, ReferenceDot } from 'recharts';
-import { ChevronDown, Droplets ,Factory, TrendingUp, Cpu, Lightbulb, Zap, Clock, Thermometer, Droplet, Calendar, Gauge, AlertTriangle, MessageSquare, HelpCircle, Eye, Cloud, Download, CloudRain, Wind, Info, BellRing, LayoutDashboard, BarChart3, Building2, Activity, Leaf, Power, PowerOff, RefreshCw, DollarSign, Sigma, Bolt, SlidersHorizontal, Settings, TestTube2 } from 'lucide-react';
+import { ChevronDown, Droplets ,Factory, TrendingUp, Cpu, Lightbulb,Sun, Zap, Clock, Thermometer, Droplet, Calendar, Gauge, AlertTriangle, MessageSquare, HelpCircle, Eye, Cloud, Download, CloudRain, Wind, Info, BellRing, LayoutDashboard, BarChart3, Building2, Activity, Leaf, Power, PowerOff, RefreshCw, DollarSign, Sigma, Bolt, SlidersHorizontal, Settings, TestTube2 } from 'lucide-react';
 // Placeholder for API Key (Canvas will inject if needed)
 const apiKey = "";
 
@@ -26,84 +26,6 @@ const PIE_COLORS = [TM_RED, TM_LIGHT_BLUE, '#FFBB28', '#FF8042']; // Kept some o
 const COLORS = ['#ED1C24', '#07233B', '#00A3E0', '#4B5563', '#a4de6c', '#d0ed57', '#ff7300', '#2E8BC0'];
 
 
-// --- MOCK DATA ENHANCEMENTS ---
-
-// Mock Database for Equipment per Process
-const processEquipmentDB = {
-    Paint: [
-        { name: 'Electrostatic Sprayer 1', icon: Cpu },
-        { name: 'Curing Oven A', icon: Thermometer },
-        { name: 'Mixing Vat 3', icon: Droplet },
-        { name: 'Conveyor Line P-1', icon: TrendingUp },
-    ],
-    Welder: [
-        { name: 'Spot Welder R-5', icon: Factory },
-        { name: 'Arc Welder Z-9', icon: Factory },
-        { name: 'Seam Welder T-1', icon: Factory },
-    ],
-    HVAC: [
-        { name: 'Chiller Unit 1', icon: Thermometer },
-        { name: 'Air Handler 4', icon: Wind },
-        { name: 'Cooling Tower 2', icon: CloudRain },
-    ],
-    Conveyor: [
-        { name: 'Main Assembly Line', icon: TrendingUp },
-        { name: 'Parts Transfer Belt', icon: TrendingUp },
-        { name: 'Final Inspection Line', icon: TrendingUp },
-    ],
-    'Robotics Arms': [
-        { name: 'Assembly Arm A1', icon: Cpu },
-        { name: 'Assembly Arm A2', icon: Cpu },
-        { name: 'Welding Arm W1', icon: Cpu },
-        { name: 'Painting Arm P1', icon: Cpu },
-    ],
-};
-
-// New function to generate detailed live data for processes
-// const generateLiveProcessData = () => {
-//     const processData = {};
-//     let totalPlantEnergy = 0;
-//     let totalPlantRenewable = 0;
-//     let totalPlantNonRenewable = 0;
-
-//     Object.keys(processEquipmentDB).forEach(processName => {
-//         let totalProcessEnergy = 0;
-//         const equipment = processEquipmentDB[processName].map(equip => {
-//             const voltage = parseFloat((220 + (Math.random() - 0.5) * 10).toFixed(2)); // Volts
-//             const current = parseFloat((15 + (Math.random() - 0.5) * 5).toFixed(2)); // Amps
-//             const energy = parseFloat(((voltage * current) / 1000).toFixed(3)); // kWh
-//             totalProcessEnergy += energy;
-//             return { ...equip, voltage, current, energy };
-//         });
-
-//         const processKey = processName.toLowerCase().replace(/ /g, '');
-//         // Simulate a unique renewable mix for each process
-//         const processRenewable = totalProcessEnergy * (0.3 + Math.random() * 0.4); // 30-70% renewable mix per process
-//         const processNonRenewable = Math.max(0, totalProcessEnergy - processRenewable);
-        
-//         processData[processKey] = {
-//             energy: parseFloat(totalProcessEnergy.toFixed(2)),
-//             renewable: parseFloat(processRenewable.toFixed(2)),
-//             nonRenewable: parseFloat(processNonRenewable.toFixed(2)),
-//             equipment,
-//         };
-//         totalPlantEnergy += totalProcessEnergy;
-//         totalPlantRenewable += processRenewable;
-//         totalPlantNonRenewable += processNonRenewable;
-//     });
-    
-//     return {
-//         ...processData,
-//         totalPlantEnergy: parseFloat(totalPlantEnergy.toFixed(2)),
-//         renewable: parseFloat(totalPlantRenewable.toFixed(2)),
-//         nonRenewable: parseFloat(totalPlantNonRenewable.toFixed(2)),
-//         renewableWind: parseFloat((totalPlantRenewable * 0.3).toFixed(2)),
-//         renewableSolar: parseFloat((totalPlantRenewable * 0.5).toFixed(2)),
-//         renewableHydro: parseFloat((totalPlantRenewable * 0.2).toFixed(2)),
-//     };
-// };
-
-
 // Utility function to get local date time string for input type="datetime-local"
 const getLocalDateTimeString = (date) => {
     if (!date) return '';
@@ -122,284 +44,13 @@ const parseLocalDateTimeString = (dtString) => {
 };
 
 
-// Utility function to generate random data
-// const generateRandomData = (count, min, max) => {
-//   return Array.from({ length: count }, () => parseFloat((Math.random() * (max - min) + min).toFixed(2)));
-// };
-
 // Helper to format date for display
 const formatDate = (date) => {
   const d = new Date(date);
   return d.toISOString().split('T')[0];
 };
 
-// const generateHistoricalData = (startDateStr, endDateStr, systems) => {
-//   const data = [];
-//   const startDate = new Date(startDateStr);
-//   const endDate = new Date(endDateStr);
-//   const diffTime = Math.abs(endDate - startDate);
-//   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-
-//   for (let i = 0; i < diffDays; i++) {
-//     const date = new Date(startDate);
-//     date.setDate(startDate.getDate() + i);
-//     const dayData = {
-//       date: date.toISOString().split('T')[0],
-//     };
-//     let totalEnergy = 0;
-//     systems.forEach(system => {
-//       const energy = parseFloat((Math.random() * 100 + 500).toFixed(2));
-//       dayData[system] = energy;
-//       totalEnergy += energy;
-//     });
-//     dayData['Total Energy'] = parseFloat(totalEnergy.toFixed(2));
-//     data.push(dayData);
-//   }
-//   return data;
-// };
-
-// const generateMonthlySummary = () => {
-//   const data = [];
-//   const systems = ['Paint', 'Welder', 'HVAC', 'Conveyor', 'Robotics Arms'];
-//   const currentYear = new Date().getFullYear();
-//   const currentMonth = new Date().getMonth(); // 0-indexed (Jan is 0)
-
-//   for (let i = 0; i <= currentMonth; i++) { // Generate only up to the current month
-//     const date = new Date(currentYear, i, 1);
-//     const monthName = date.toLocaleString('default', { month: 'short' });
-//     const year = date.getFullYear();
-//     const monthData = {
-//       month: `${monthName} ${year}`,
-//     };
-//     let totalEnergy = 0;
-//     systems.forEach(system => {
-//       const energy = parseFloat((Math.random() * 1000 + 5000).toFixed(2));
-//       monthData[system] = energy;
-//       totalEnergy += energy;
-//     });
-//     monthData['Total Energy (kWh)'] = parseFloat(totalEnergy.toFixed(2));
-//     data.push(monthData);
-//   }
-//   return data;
-// };
-
-// const generateDailyStackedData = (startDateStr, endDateStr) => {
-//   const data = [];
-//   const startDate = new Date(startDateStr);
-//   const endDate = new Date(endDateStr);
-//   const diffTime = Math.abs(endDate - startDate);
-//   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-
-//   for (let i = 0; i < diffDays; i++) {
-//     const date = new Date(startDate);
-//     date.setDate(startDate.getDate() + i);
-//     data.push({
-//       date: date.toISOString().split('T')[0],
-//       Paint: parseFloat((Math.random() * 500 + 1000).toFixed(2)),
-//       Welder: parseFloat((Math.random() * 300 + 800).toFixed(2)),
-//       HVAC: parseFloat((Math.random() * 700 + 1500).toFixed(2)),
-//       Conveyor: parseFloat((Math.random() * 200 + 600).toFixed(2)),
-//       RoboticsArms: parseFloat((Math.random() * 400 + 1200).toFixed(2)),
-//     });
-//   }
-//   return data;
-// };
-
-// // --- NEW TIME-SERIES COMPARISON DATA GENERATOR ---
-// const generateTimeSeriesComparisonData = (selectedPlants, startDateStr, endDateStr) => {
-//   const data = [];
-//   const startDate = new Date(startDateStr);
-//   const endDate = new Date(endDateStr);
-//   const diffTime = Math.abs(endDate - startDate);
-//   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-
-//   for (let i = 0; i < diffDays; i++) {
-//     const date = new Date(startDate);
-//     date.setDate(startDate.getDate() + i);
-//     const dayData = { date: date.toISOString().split('T')[0] };
-
-//     selectedPlants.forEach(plant => {
-//       const plantDailyData = generateLiveProcessData(); // Simulate daily data for a plant
-//       dayData[`${plant}_totalEnergy`] = plantDailyData.totalPlantEnergy;
-//       dayData[`${plant}_renewable`] = plantDailyData.renewable;
-//       dayData[`${plant}_nonRenewable`] = plantDailyData.nonRenewable;
-      
-//       Object.keys(processEquipmentDB).forEach(processName => {
-//         const processKey = processName.toLowerCase().replace(/ /g, '');
-//         dayData[`${plant}_${processName}`] = plantDailyData[processKey]?.energy || 0;
-//       });
-//     });
-//     data.push(dayData);
-//   }
-//   return data;
-// };
-
-
 // --- FORECASTING DATA GENERATION ---
-const generatePointInTimeForecast = () => {
-    // This function generates a forecast for a single point in time,
-    // mirroring the structure of `generateLiveProcessData`
-    const processData = {};
-    let totalPlantEnergy = 0;
-    let totalPlantRenewable = 0;
-    let totalPlantNonRenewable = 0;
-
-    Object.keys(processEquipmentDB).forEach(processName => {
-        let totalProcessEnergy = 0;
-        const equipment = processEquipmentDB[processName].map(equip => {
-            // Forecasted values have a slightly larger random variance
-            const voltage = parseFloat((220 + (Math.random() - 0.5) * 15).toFixed(2)); // Volts
-            const current = parseFloat((15 + (Math.random() - 0.5) * 8).toFixed(2));  // Amps
-            const energy = parseFloat(((voltage * current) / 1000).toFixed(3));       // kWh
-            totalProcessEnergy += energy;
-            return { ...equip, voltage, current, energy };
-        });
-
-        const processKey = processName.toLowerCase().replace(/ /g, '');
-        const processRenewable = totalProcessEnergy * (0.25 + Math.random() * 0.45); // Forecasted mix might vary
-        const processNonRenewable = Math.max(0, totalProcessEnergy - processRenewable);
-        
-        processData[processKey] = {
-            energy: parseFloat(totalProcessEnergy.toFixed(2)),
-            renewable: parseFloat(processRenewable.toFixed(2)),
-            nonRenewable: parseFloat(processNonRenewable.toFixed(2)),
-            equipment,
-        };
-        totalPlantEnergy += totalProcessEnergy;
-        totalPlantRenewable += processRenewable;
-        totalPlantNonRenewable += processNonRenewable;
-    });
-    
-    return {
-        ...processData,
-        totalPlantEnergy: parseFloat((totalPlantEnergy * (0.9 + Math.random() * 0.2)).toFixed(2)),
-        renewable: parseFloat(totalPlantRenewable.toFixed(2)),
-        nonRenewable: parseFloat(totalPlantNonRenewable.toFixed(2)),
-        renewableWind: parseFloat((totalPlantRenewable * 0.35).toFixed(2)),
-        renewableSolar: parseFloat((totalPlantRenewable * 0.45).toFixed(2)),
-        renewableHydro: parseFloat((totalPlantRenewable * 0.20).toFixed(2)),
-    };
-};
-
-
-// Modified generateForecastData to accept explicit start and end dates
-const generateForecastData = (startDate, endDate, systemsToForecast) => {
-  const data = [];
-  let totalConsumption = 0;
-  const now = new Date();
-
-  // Determine the duration in hours
-  const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
-  const totalHours = Math.ceil(diffTime / (1000 * 60 * 60));
-
-  for (let i = 0; i <= totalHours; i++) {
-    const date = new Date(startDate);
-    date.setHours(startDate.getHours() + i);
-
-    // Only generate data up to the endDate
-    if (date.getTime() > endDate.getTime()) {
-      break;
-    }
-
-    const actual = parseFloat((Math.random() * 100 + 500).toFixed(2));
-    const predicted = parseFloat((actual * (1 + (Math.random() - 0.5) * 0.1)).toFixed(2));
-    const lowerBound = parseFloat((predicted * 0.95).toFixed(2));
-    const upperBound = parseFloat((predicted * 1.05).toFixed(2));
-
-    let item = {
-      time: date.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', day: 'numeric', month: 'short' }),
-      actual: date.getTime() < now.getTime() ? actual : null, // Actual for past/current time
-      predicted: predicted,
-      lowerBound: lowerBound,
-      upperBound: upperBound,
-      isAnomaly: false,
-      anomalyReason: '',
-      anomalySeverity: '',
-      affectedProcess: 'Overall Plant',
-      anomalyId: null,
-    };
-
-    // Simulate anomaly injection based on the relative position within the generated range
-    const relativeHour = i;
-    const totalSimulatedHours = totalHours; // Use the calculated totalHours for proportion
-    if (relativeHour === Math.floor(totalSimulatedHours / 3) || relativeHour === Math.floor(totalSimulatedHours * 2 / 3)) {
-        const anomalyChance = Math.random();
-        if (anomalyChance < 0.4) {
-            item.isAnomaly = true;
-            item.anomalyId = `anomaly-${Date.now()}-${i}`;
-            item.affectedProcess = 'Overall Plant';
-            if (Math.random() < 0.5) {
-                item.predicted = parseFloat((item.predicted * (1.3 + Math.random() * 0.4)).toFixed(2));
-                item.anomalyReason = 'Sudden surge due to unexpected production line activation.';
-                item.anomalySeverity = 'Critical';
-            } else {
-                item.predicted = parseFloat((item.predicted * (0.4 - Math.random() * 0.2)).toFixed(2));
-                item.anomalyReason = 'Major equipment failure leading to abrupt shutdown.';
-                item.anomalySeverity = 'Critical';
-            }
-        } else if (anomalyChance < 0.8) {
-            item.isAnomaly = true;
-            item.anomalyId = `anomaly-${Date.now()}-${i}`;
-            item.affectedProcess = ['HVAC', 'Paint'][Math.floor(Math.random() * 2)];
-            item.predicted = parseFloat((item.predicted * (1.1 + Math.random() * 0.1)).toFixed(2));
-            item.anomalyReason = `${item.affectedProcess} running unusually high for this hour.`;
-            item.anomalySeverity = 'Warning';
-        } else {
-            item.isAnomaly = true;
-            item.anomalyId = `anomaly-${Date.now()}-${i}`;
-            item.affectedProcess = ['Welder', 'Conveyor'][Math.floor(Math.random() * 2)];
-            item.predicted = parseFloat((item.predicted * (1.05 + Math.random() * 0.05)).toFixed(2));
-            item.anomalyReason = `${item.affectedProcess} consumption consistently above baseline.`;
-            item.anomalySeverity = 'Info';
-        }
-        item.lowerBound = parseFloat((item.predicted * 0.95).toFixed(2));
-        item.upperBound = parseFloat((item.predicted * 1.05).toFixed(2));
-    }
-
-    const systemValues = {};
-    const systemActuals = {};
-    systemsToForecast.forEach(system => {
-      let sysPredicted = parseFloat((Math.random() * 50 + 100).toFixed(2));
-      let sysActual = date.getTime() < now.getTime() ? parseFloat((sysPredicted * (1 + (Math.random() - 0.5) * 0.05))).toFixed(2) : null;
-
-      if (!item.isAnomaly && Math.random() < 0.05 && system !== 'Overall Plant') {
-        item.isAnomaly = true;
-        item.anomalyId = `anomaly-${Date.now()}-${i}-${system}`;
-        item.affectedProcess = system;
-        item.anomalySeverity = 'Warning';
-        if (Math.random() < 0.5) {
-          sysPredicted = parseFloat((sysPredicted * (1.5 + Math.random() * 0.5)).toFixed(2));
-          item.anomalyReason = `${system} saw a sudden spike due to increased activity.`;
-          item.anomalySeverity = 'Critical';
-        } else {
-          sysPredicted = parseFloat((sysPredicted * (0.3 + Math.random() * 0.2)).toFixed(2));
-          item.anomalyReason = `${system} experienced a sudden drop due to unexpected downtime.`;
-          item.anomalySeverity = 'Warning';
-        }
-        // Recalculate overall predicted if a system-specific anomaly is injected
-        item.predicted = parseFloat((Object.values(systemValues).reduce((sum, val) => sum + val, 0) + sysPredicted).toFixed(2));
-        item.lowerBound = parseFloat((item.predicted * 0.95).toFixed(2));
-        item.upperBound = parseFloat((item.predicted * 1.05).toFixed(2));
-      }
-
-      systemValues[system.replace(' ', '') + 'Predicted'] = sysPredicted;
-      systemActuals[system.replace(' ', '') + 'Actual'] = sysActual;
-    });
-
-    item = { ...item, ...systemValues, ...systemActuals };
-    data.push(item);
-    totalConsumption += predicted;
-  }
-
-  const mockRenewableMixPercent = parseFloat((Math.random() * 20 + 60).toFixed(2));
-  const nonRenewableEnergy = totalConsumption * (1 - (mockRenewableMixPercent / 100));
-  const renewableEnergy = totalConsumption * (mockRenewableMixPercent / 100);
-  const forecastedEmissions = (nonRenewableEnergy * EMISSION_FACTOR_NON_RENEWABLE_KG_PER_KWH) +
-                                (renewableEnergy * EMISSION_FACTOR_RENEWABLE_KG_PER_KWH);
-
-  return { data, totalConsumption, forecastedEmissions: parseFloat(forecastedEmissions.toFixed(2)) };
-};
-
 
 const generateFeatureImportance = () => {
   const features = [
@@ -431,81 +82,11 @@ const generateDeviationData = (days = 7) => {
   return data.reverse();
 };
 
-// const generateWeatherConditions = () => {
-//     return {
-//       current: {
-//         temperature: generateRandomData(1, 15, 30)[0],
-//         humidity: generateRandomData(1, 40, 90)[0],
-//         windSpeed: generateRandomData(1, 5, 20)[0],
-//         conditions: ['Sunny', 'Partly Cloudy', 'Cloudy', 'Rainy'][Math.floor(Math.random() * 4)],
-//       },
-//       forecast: { // Added forecast weather
-//         temperature: generateRandomData(1, 18, 32)[0],
-//         humidity: generateRandomData(1, 35, 85)[0],
-//         windSpeed: generateRandomData(1, 8, 25)[0],
-//         conditions: ['Sunny', 'Partly Cloudy', 'Scattered Showers'][Math.floor(Math.random() * 3)],
-//       }
-//     };
-// };
+
 
 // EMISSION DATA GENERATION FUNCTIONS
 const EMISSION_FACTOR_NON_RENEWABLE_KG_PER_KWH = 0.45;
 const EMISSION_FACTOR_RENEWABLE_KG_PER_KWH = 0.02;
-
-// const generateEmissionMetrics = (currentEnergyConsumption, renewableMixPercent) => {
-//     if (isNaN(currentEnergyConsumption) || isNaN(renewableMixPercent) || currentEnergyConsumption === 0) {
-//         return { totalEmissions: 0, processEmissions: [], sourceEmissions: [], emissionIntensity: 0, benchmark: 0.35 };
-//     }
-//     const nonRenewableEnergy = currentEnergyConsumption * (1 - (renewableMixPercent / 100));
-//     const renewableEnergy = currentEnergyConsumption * (renewableMixPercent / 100);
-
-//     const totalEmissions = (nonRenewableEnergy * EMISSION_FACTOR_NON_RENEWABLE_KG_PER_KWH) +
-//                               (renewableEnergy * EMISSION_FACTOR_RENEWABLE_KG_PER_KWH);
-
-//     const specificProcesses = processes.filter(p => p !== 'Overall Plant');
-//     const processEmissions = specificProcesses.map(processName => {
-//         const baseEmission = totalEmissions * (Math.random() * 0.15 + 0.05);
-//         return { name: processName, emissions: parseFloat(baseEmission.toFixed(2)) };
-//     });
-
-//     const sourceEmissions = [
-//         { name: 'Non-Renewable', emissions: parseFloat((nonRenewableEnergy * EMISSION_FACTOR_NON_RENEWABLE_KG_PER_KWH).toFixed(2)) },
-//         { name: 'Renewable', emissions: parseFloat((renewableEnergy * EMISSION_FACTOR_RENEWABLE_KG_PER_KWH).toFixed(2)) },
-//     ];
-
-//     const emissionIntensity = parseFloat((totalEmissions / currentEnergyConsumption).toFixed(3));
-
-//     return {
-//         totalEmissions: parseFloat(totalEmissions.toFixed(2)),
-//         processEmissions,
-//         sourceEmissions,
-//         emissionIntensity,
-//         benchmark: 0.35
-//     };
-// };
-
-// const generateDailyEmissions = (startDateStr, endDateStr) => {
-//     const data = [];
-//     const startDate = new Date(startDateStr);
-//     const endDate = new Date(endDateStr);
-//     const diffTime = Math.abs(endDate - startDate);
-//     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-
-//     for (let i = 0; i < diffDays; i++) {
-//         const date = new Date(startDate);
-//         date.setDate(startDate.getDate() + i);
-//         const totalConsumption = parseFloat((Math.random() * 10000 + 5000).toFixed(2));
-//         const renewableMix = parseFloat((Math.random() * 30 + 50).toFixed(2));
-//         const emissionsData = generateEmissionMetrics(totalConsumption, renewableMix);
-//         data.push({
-//             date: date.toISOString().split('T')[0],
-//             totalEmissions: emissionsData.totalEmissions,
-//             benchmark: emissionsData.benchmark * totalConsumption
-//         });
-//     }
-//     return data;
-// };
-
 
 const CustomTooltip = ({ active, payload, label, unit = 'kWh' }) => {
   if (active && payload && payload.length) {
@@ -548,7 +129,7 @@ const Header = ({ activeTab, setActiveTab, currentPlant, setCurrentPlant }) => {
   const [plantList, setPlantList] = useState([]);
   
     useEffect(() => {
-      fetch('http://localhost:8080/api/plants')
+      fetch('https://energy-forecasting-production.up.railway.app/api/plants')
         .then(res => res.json())
         .then(data => {
           setPlantList(data);
@@ -579,18 +160,10 @@ const Header = ({ activeTab, setActiveTab, currentPlant, setCurrentPlant }) => {
                         </p>
                     </div>
                 </div>
-                {/* <Dropdown
-                    label="Plant Selector"
-                    options={plantList.map(p => p.plantName)}
-                    selected={currentPlant?.plantName || ''}
-                    onChange={(selectedName) => {
-                    const selectedPlant = plantList.find(p => p.plantName === selectedName);
-                    setCurrentPlant(selectedPlant);
-                    }}
-                /> */}
+                
             </div>
       <nav className="flex items-center space-x-2 md:space-x-4 absolute left-1/2 -translate-x-1/2">
-        {['Monitoring', 'Forecasting', 'Insights', 'AI Copilot'].map(tab => (
+        {['Monitoring', 'Forecasting', 'Insights'].map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -798,55 +371,7 @@ const DateRangePicker = ({ startDate, endDate, period, onStartDateChange, onEndD
 </div>
     );
 };
-const generateAlerts = (count = 20) => {
-    const alerts = [];
-    const now = new Date();
-    const severities = ['Critical', 'Warning', 'Info'];
-    const types = ['Forecast Anomaly', 'Equipment Spike', 'Deviation', 'Maintenance Alert'];
-    const statuses = ['New', 'Acknowledged', 'Resolved'];
-    const processesForSelection = ['Paint', 'Welder', 'HVAC', 'Conveyor', 'Robotics Arms'];
 
-
-    for (let i = 0; i < count; i++) {
-        const severity = severities[Math.floor(Math.random() * severities.length)];
-        const affectedProcess = processesForSelection[Math.floor(Math.random() * processesForSelection.length)];
-        let description = '';
-        let recommendation = '';
-
-        switch (severity) {
-            case 'Critical':
-                description = `Critical power surge predicted for the ${affectedProcess} process. Potential for equipment damage.`;
-                recommendation = `Immediately review the production schedule for the ${affectedProcess} process. Consider halting non-essential operations during the predicted surge time.`;
-                break;
-            case 'Warning':
-                description = `Forecasted energy consumption for ${affectedProcess} is 25% above the operational baseline.`;
-                recommendation = `Investigate the machinery in the ${affectedProcess} area. Prepare for higher-than-usual energy costs.`;
-                break;
-            case 'Info':
-            default:
-                description = `Minor deviation expected in ${affectedProcess} energy usage due to external temperature changes.`;
-                recommendation = `No immediate action required. Monitor HVAC efficiency.`;
-                break;
-        }
-
-        alerts.push({
-            id: `alert-${Date.now()}-${i}`,
-            severity,
-            timestamp: new Date(now.getTime() + i * 6 * 60 * 60 * 1000), // Stagger alerts over the next few days
-            type: types[Math.floor(Math.random() * types.length)],
-            description,
-            affectedProcess,
-            status: i < 5 ? 'New' : statuses[Math.floor(Math.random() * statuses.length)], // Make first few 'New'
-            recommendation,
-        });
-    }
-    // Sort by status ('New' first), then by timestamp (most recent first)
-    return alerts.sort((a, b) => {
-        if (a.status === 'New' && b.status !== 'New') return -1;
-        if (a.status !== 'New' && b.status === 'New') return 1;
-        return b.timestamp - a.timestamp;
-    });
-};
 
 
 const COST_PER_KWH = 8.50; // Simulated cost in a local currency (e.g., INR)
@@ -854,235 +379,262 @@ const PEAK_DEMAND_CHARGE_PER_KW = 450; // Cost for the highest kW reached in the
 
 
 // Generates a baseline 24-hour forecast load profile
-const generateBaselineHourlyData = () => {
-    const data = [];
-    // Typical M-shaped daily load for a 2-shift factory
-    const baseLoadShape = [5, 5, 5, 5, 5, 6, 8, 15, 18, 19, 18, 15, 12, 15, 18, 19, 20, 19, 18, 12, 8, 6, 5, 5];
-    for (let i = 0; i < 24; i++) {
-        data.push({
-            hour: `${i}:00`,
-            baseline: baseLoadShape[i] * 100 + (Math.random() - 0.5) * 100, // in kWh
-            // Breakdown by process (as a percentage of baseline)
-            hvac: 0.30,
-            paint: 0.25,
-            welder: 0.20,
-            conveyor: 0.15,
-            robotics: 0.10,
-        });
-    }
-    return data;
-};
-
-// The core simulation engine
-const runSimulation = (baselineData, params) => {
-    const scenarioData = baselineData.map(hourData => {
-        let scenarioLoad = hourData.baseline;
-
-        // 1. Apply Production Volume Change
-        scenarioLoad *= (1 + params.productionVolume / 100);
-
-        // 2. Apply Process Efficiency Gains
-        const hvacLoad = scenarioLoad * hourData.hvac * (1 - params.hvacEfficiency / 100);
-        const paintLoad = scenarioLoad * hourData.paint * (1 - params.paintEfficiency / 100);
-        const welderLoad = scenarioLoad * hourData.welder * (1 - params.welderEfficiency / 100);
-        // Assume other processes remain the same proportion of the new load
-        const otherLoad = scenarioLoad * (hourData.conveyor + hourData.robotics);
-        scenarioLoad = hvacLoad + paintLoad + welderLoad + otherLoad;
-
-        // 3. Add Night Shift Load
-        const hour = parseInt(hourData.hour.split(':')[0]);
-        if (params.addNightShift && (hour >= 22 || hour <= 5)) {
-            scenarioLoad += 800; // Add a flat 800 kWh load for the night shift
-        }
-        
-        return {
-            ...hourData,
-            scenario: scenarioLoad,
-        };
-    });
-
-    return scenarioData;
-};
-
-// Calculates final metrics from a data series (baseline or scenario)
-const calculateMetrics = (data, seriesKey, renewableMix) => {
-    const totalKwh = data.reduce((sum, d) => sum + d[seriesKey], 0);
-    const peakDemand = Math.max(...data.map(d => d[seriesKey]));
-    
-    // Cost calculation
-    const energyCost = totalKwh * COST_PER_KWH;
-    const demandCost = peakDemand * PEAK_DEMAND_CHARGE_PER_KW;
-    const totalCost = energyCost + demandCost;
-
-    // Emission calculation
-    const renewableEnergy = totalKwh * (renewableMix / 100);
-    const nonRenewableEnergy = totalKwh * (1 - renewableMix / 100);
-    const totalEmissions = (nonRenewableEnergy * EMISSION_FACTOR_NON_RENEWABLE_KG_PER_KWH) +
-                              (renewableEnergy * EMISSION_FACTOR_RENEWABLE_KG_PER_KWH);
-
-    return {
-        totalKwh: parseFloat(totalKwh.toFixed(0)),
-        peakDemand: parseFloat(peakDemand.toFixed(0)),
-        totalCost: parseFloat(totalCost.toFixed(0)),
-        totalEmissions: parseFloat(totalEmissions.toFixed(0)),
-    };
-};
-
+const API_URL = 'https://energy-forecasting-production.up.railway.app/api/scenario';
 
 // --- REACT COMPONENT FOR THE SCENARIO PLANNER TAB ---
-
-const ScenarioPlannerTab = () => {
-    const [baselineHourlyData] = useState(generateBaselineHourlyData());
+const ParameterSlider = ({ icon: Icon, label, value, onChange, min, max, step, unit }) => (
+    <div>
+        <label className="flex items-center font-medium mb-2">
+            {Icon && <Icon className="h-5 w-5 mr-3 text-blue-500" />}
+            {label}
+        </label>
+        <div className="flex items-center space-x-4">
+            <input
+                type="range"
+                min={min}
+                max={max}
+                step={step}
+                value={value}
+                onChange={e => onChange(parseFloat(e.target.value))}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            />
+            <span className="text-lg font-bold w-24 text-right">{value}{unit}</span>
+        </div>
+    </div>
+);
+const ScenarioPlannerTab = ({ currentPlant, startDate, endDate }) => {
+    const initialParams = {
+        volChangePercent: 0,
+        windPercent: 0,
+        solarPercent: 0,
+        hydroPercent: 0,
+    };
+    const PLANT_ID = currentPlant?.plantId;
+    const [params, setParams] = useState(initialParams);
     const [baselineMetrics, setBaselineMetrics] = useState(null);
     const [scenarioMetrics, setScenarioMetrics] = useState(null);
-    const [combinedData, setCombinedData] = useState(baselineHourlyData.map(d => ({ ...d, scenario: d.baseline })));
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    const initialParams = {
-        productionVolume: 0,
-        addNightShift: false,
-        hvacEfficiency: 0,
-        paintEfficiency: 0,
-        welderEfficiency: 0,
-        renewableMix: 40,
-    };
-    const [params, setParams] = useState(initialParams);
-
+    // **Original useEffect to fetch baseline data**
     useEffect(() => {
-        const metrics = calculateMetrics(baselineHourlyData, 'baseline', params.renewableMix);
-        setBaselineMetrics(metrics);
-    }, [baselineHourlyData, params.renewableMix]);
+        const fetchBaseline = async () => {
+            // Set loading state for the initial data fetch
+            setIsLoading(true);
+            setError(null);
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        startDate,
+                        endDate,
+                        plantId: PLANT_ID,
+                        volChangePercent: 0, // Baseline means no change
+                        renewableEnergyChangePercent: 0, // Baseline means no change from grid default
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch baseline data. Status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                setBaselineMetrics({
+                    totalKwh: data.totalEnergyConsumedKWh,
+                    totalEmissions: data.totalCo2EmissionsKg,
+                    totalCost: data.totalEnergyConsumedKWh * COST_PER_KWH, // Simplified cost calculation
+                });
+
+            } catch (e) {
+                setError(e.message);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        if (PLANT_ID) { // Only fetch if a plant is selected
+            fetchBaseline();
+        }
+    }, [PLANT_ID, startDate, endDate]); // Dependencies for re-fetching baseline
 
     const handleParamChange = (param, value) => {
         setParams(prev => ({ ...prev, [param]: value }));
     };
 
-    const handleRunSimulation = () => {
-        const scenarioHourlyData = runSimulation(baselineHourlyData, params);
-        const newScenarioMetrics = calculateMetrics(scenarioHourlyData, 'scenario', params.renewableMix);
-        setScenarioMetrics(newScenarioMetrics);
-        
-        setCombinedData(baselineHourlyData.map((d, i) => ({
-            ...d,
-            scenario: scenarioHourlyData[i].scenario,
-        })));
+    // **Original handleRunSimulation to fetch scenario data**
+    const handleRunSimulation = async () => {
+        setIsLoading(true);
+        setError(null);
+        setScenarioMetrics(null); // Clear previous results
+
+        const totalRenewablePercent = params.windPercent + params.solarPercent + params.hydroPercent;
+
+        if (totalRenewablePercent > 100) {
+            setError("Total renewable energy mix cannot exceed 100%.");
+            setIsLoading(false);
+            return;
+        }
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    startDate,
+                    endDate,
+                    plantId: PLANT_ID,
+                    volChangePercent: params.volChangePercent,
+                    renewableEnergyChangePercent: totalRenewablePercent, // Pass the calculated sum to the API
+                }),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`API Error: ${response.status} - ${errorText}`);
+            }
+
+            const data = await response.json();
+            setScenarioMetrics({
+                totalKwh: data.totalEnergyConsumedKWh,
+                totalEmissions: data.totalCo2EmissionsKg,
+                totalCost: data.totalEnergyConsumedKWh * COST_PER_KWH, // Simplified cost calculation
+            });
+
+        } catch (e) {
+            setError(e.message);
+        } finally {
+            setIsLoading(false);
+        }
     };
     
     const handleReset = () => {
         setParams(initialParams);
         setScenarioMetrics(null);
-        setCombinedData(baselineHourlyData.map(d => ({ ...d, scenario: d.baseline })));
-    }
-    
-    const ParameterSlider = ({ icon: Icon, label, value, onChange, min, max, step, unit }) => (
-        <div>
-            <label className="flex items-center font-medium mb-2" style={{color: TM_DARK_BLUE}}>
-                <Icon className="h-5 w-5 mr-3" style={{color: TM_LIGHT_BLUE}} />
-                {label}
-            </label>
-            <div className="flex items-center space-x-4">
-                <input
-                    type="range"
-                    min={min}
-                    max={max}
-                    step={step}
-                    value={value}
-                    onChange={e => onChange(parseFloat(e.target.value))}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                    style={{ '--thumb-color': TM_RED }}
-                />
-                <span className="text-lg font-bold w-24 text-right" style={{color: TM_DARK_BLUE}}>{value}{unit}</span>
-            </div>
-        </div>
-    );
+        setError(null);
+    };
 
+    // Calculate current totals for UI feedback
+    const currentTotalRenewable = params.windPercent + params.solarPercent + params.hydroPercent;
     const costDifference = scenarioMetrics && baselineMetrics ? scenarioMetrics.totalCost - baselineMetrics.totalCost : 0;
-    const costColor = costDifference >= 0 ? '#EF4444' : '#22C55E';
-
+    const costColor = costDifference > 0 ? '#EF4444' : '#22C55E';
+    
     return (
-        <div className="p-6 min-h-screen" style={{backgroundColor: TM_LIGHT_GRAY_BG, color: TM_GRAY_TEXT}}>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* --- Left Column: Control Panel --- */}
-                <div className="lg:col-span-1 space-y-6">
-                    <SectionCard title="Scenario Parameters">
-                        <div className="space-y-8">
-                           <ParameterSlider icon={TrendingUp} label="Production Volume" value={params.productionVolume} onChange={v => handleParamChange('productionVolume', v)} min={-50} max={50} step={5} unit="%" />
-                           <ParameterSlider icon={Leaf} label="Renewable Energy Mix" value={params.renewableMix} onChange={v => handleParamChange('renewableMix', v)} min={0} max={100} step={5} unit="%" />
+        <div className="bg-gray-50/50 min-h-full">
+            <div className="max-w-screen-xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+                <div className="grid grid-cols-1 xl:grid-cols-3 xl:gap-8 gap-6">
 
-                           <div className="pt-4 border-t border-gray-200">
-                                <label className="flex items-center font-medium mb-3 text-lg" style={{color: TM_DARK_BLUE}}>
-                                   <Factory className="h-6 w-6 mr-3" style={{color: TM_LIGHT_BLUE}} />
-                                   Operational Changes
-                                </label>
-                                <div className="flex items-center justify-between bg-gray-100 p-3 rounded-lg">
-                                   <span className="font-medium" style={{color: TM_GRAY_TEXT}}>Add Full Night Shift</span>
-                                   <label className="relative inline-flex items-center cursor-pointer">
-                                       <input type="checkbox" checked={params.addNightShift} onChange={e => handleParamChange('addNightShift', e.target.checked)} className="sr-only peer" />
-                                       <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
-                                   </label>
-                                </div>
-                           </div>
-                           
-                           <div className="pt-5 border-t border-gray-200">
-                                <p className="font-medium mb-4 text-lg" style={{color: TM_DARK_BLUE}}>
-                                   Process Efficiency Gains
-                                </p>
-                                <div className="space-y-6">
-                                   <ParameterSlider icon={Thermometer} label="HVAC" value={params.hvacEfficiency} onChange={v => handleParamChange('hvacEfficiency', v)} min={0} max={50} step={5} unit="%" />
-                                   <ParameterSlider icon={Power} label="Paint Shop" value={params.paintEfficiency} onChange={v => handleParamChange('paintEfficiency', v)} min={0} max={50} step={5} unit="%" />
-                                   <ParameterSlider icon={PowerOff} label="Welding" value={params.welderEfficiency} onChange={v => handleParamChange('welderEfficiency', v)} min={0} max={50} step={5} unit="%" />
-                                </div>
-                           </div>
-                           
-                           <div className="flex items-center justify-center space-x-4 pt-6">
-                               <button onClick={handleRunSimulation} className="w-2/3 flex items-center justify-center px-6 py-3 text-white font-semibold rounded-lg hover:opacity-90 transition-all duration-200 shadow-lg text-lg" style={{backgroundColor: TM_RED}}>
-                                   Run Simulation
-                               </button>
-                               <button onClick={handleReset} title="Reset Parameters" className="p-3 bg-gray-200 rounded-lg hover:bg-gray-300 transition-all duration-200" style={{color: TM_DARK_BLUE}}>
-                                   <RefreshCw className="h-6 w-6" />
-                               </button>
-                           </div>
-                        </div>
-                    </SectionCard>
-                </div>
-
-                {/* --- Right Column: Results --- */}
-                <div className="lg:col-span-2 space-y-8">
-                    <SectionCard title="Scenario Impact Analysis">
-                        {!scenarioMetrics && (
-                            <div className="text-center py-20 text-gray-500">
-                                <SlidersHorizontal className="mx-auto h-16 w-16 text-gray-400 mb-4" />
-                                <p className="text-xl font-semibold">Tune parameters and run a simulation</p>
-                                <p>See how your decisions impact energy, cost, and emissions.</p>
-                            </div>
-                        )}
-                        {scenarioMetrics && baselineMetrics && (
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <StatCard 
-                                    title="Projected Cost Change" 
-                                    value={Math.abs(costDifference).toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 })}
-                                    unit={costDifference >= 0 ? " Increase" : " Savings"}
-                                    color={costColor}
-                                    icon={DollarSign}
+                    {/* --- Column 1: Parameters --- */}
+                    <div className="xl:col-span-1">
+                        <SectionCard title="Scenario Parameters">
+                            <div className="space-y-6">
+                                <ParameterSlider 
+                                    icon={TrendingUp} 
+                                    label="Production Volume Change" 
+                                    value={params.volChangePercent} 
+                                    onChange={v => handleParamChange('volChangePercent', v)} 
+                                    min={-50} max={50} step={5} unit="%" 
                                 />
-                                <StatCard title="New Energy Total" value={scenarioMetrics.totalKwh.toLocaleString()} unit=" kWh" color={TM_LIGHT_BLUE} icon={Power} />
-                                <StatCard title="New CO₂ Emissions" value={scenarioMetrics.totalEmissions.toLocaleString()} unit=" kg" color="#10B981" icon={Leaf} />
+                                
+                                <div className="border-t border-gray-200 pt-6">
+                                    <div className="flex justify-between items-baseline mb-4">
+                                        <h3 className="text-lg font-semibold text-gray-700 flex items-center">
+                                            <Leaf className="h-5 w-5 mr-2 text-green-500" />
+                                            Renewable Energy Mix
+                                        </h3>
+                                        <p className="font-bold text-indigo-800 bg-indigo-100 rounded-full px-3 py-1 text-sm">
+                                            {currentTotalRenewable}% Total
+                                        </p>
+                                    </div>
+                                    <div className="space-y-5">
+                                        <ParameterSlider 
+                                            icon={Wind} label="Wind" value={params.windPercent}
+                                            onChange={v => handleParamChange('windPercent', v)} 
+                                            min={-50} max={50} step={5} unit="%"
+                                        />
+                                        <ParameterSlider 
+                                            icon={Sun} label="Solar" value={params.solarPercent}
+                                            onChange={v => handleParamChange('solarPercent', v)}
+                                            min={-50} max={50} step={5} unit="%"
+                                        />
+                                        <ParameterSlider 
+                                            icon={Droplets} label="Hydro" value={params.hydroPercent} 
+                                            onChange={v => handleParamChange('hydroPercent', v)}
+                                            min={-50} max={50} step={5} unit="%"
+                                        />
+                                    </div>
+                                </div>
+                                
+                                <div className="border-t border-gray-200 pt-6 flex items-center gap-4">
+                                    <button
+                                        onClick={handleRunSimulation}
+                                        disabled={isLoading}
+                                        className="flex-grow flex items-center justify-center px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {isLoading ? 'Simulating...' : 'Run Simulation'}
+                                    </button>
+                                    <button
+                                        onClick={handleReset}
+                                        title="Reset Parameters"
+                                        className="p-3 bg-white border border-gray-300 text-gray-500 rounded-lg hover:bg-gray-50 hover:text-gray-700 transition-all duration-200"
+                                    >
+                                        <RefreshCw className="h-6 w-6" />
+                                    </button>
+                                </div>
                             </div>
-                        )}
-                    </SectionCard>
-                    
-                    <SectionCard title="Forecasted Load Comparison (Next 24 Hours)">
-                       <ResponsiveContainer width="100%" height={350}>
-                           <AreaChart data={combinedData}>
-                               <CartesianGrid strokeDasharray="3 3" stroke={TM_BORDER_GRAY} />
-                               <XAxis dataKey="hour" stroke={TM_GRAY_TEXT} />
-                               <YAxis stroke={TM_GRAY_TEXT} label={{ value: 'Energy (kWh)', angle: -90, position: 'insideLeft', fill: TM_GRAY_TEXT }} />
-                               <Tooltip content={<CustomTooltip />} />
-                               <Legend wrapperStyle={{ color: TM_DARK_BLUE }} />
-                               <Area type="monotone" dataKey="baseline" stroke="#8884d8" fill="#8884d8" fillOpacity={0.2} name="Baseline Forecast" />
-                               <Area type="monotone" dataKey="scenario" stroke={TM_RED} fill={TM_RED} fillOpacity={0.4} name="Scenario Forecast" />
-                           </AreaChart>
-                       </ResponsiveContainer>
-                    </SectionCard>
+                        </SectionCard>
+                    </div>
+
+                    {/* --- Column 2: Impact Analysis --- */}
+                    <div className="xl:col-span-2">
+                        <SectionCard title="Scenario Impact Analysis">
+                            <div className="min-h-[300px] flex flex-col justify-center">
+                                {error && <div className="text-center text-red-600 bg-red-50 p-4 rounded-lg"><strong>Error:</strong> {error}</div>}
+                                
+                                {!scenarioMetrics && !isLoading && !error && (
+                                    <div className="text-center text-gray-500 py-10">
+                                        <SlidersHorizontal className="mx-auto h-12 w-12 text-gray-300 mb-4" />
+                                        <p className="text-lg font-semibold text-gray-700">Adjust parameters to see their impact</p>
+                                        <p className="text-sm">Click "Run Simulation" to begin.</p>
+                                    </div>
+                                )}
+
+                                {isLoading && !error && (
+                                    <div className="text-center text-gray-500 animate-pulse py-10">
+                                        <p className="text-lg font-semibold text-gray-700">Running Simulation...</p>
+                                        <p className="text-sm">Calculating new energy, cost, and emissions.</p>
+                                    </div>
+                                )}
+
+                                {scenarioMetrics && baselineMetrics && !isLoading && !error && (
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                                        <StatCard 
+                                            title="Projected Cost Change" 
+                                            value={`₹${Math.abs(costDifference).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`}
+                                            unit={costDifference > 0 ? " Increase" : " Savings"}
+                                            color={costColor}
+                                            icon={DollarSign}
+                                        />
+                                        <StatCard 
+                                            title="New Energy Total" 
+                                            value={scenarioMetrics.totalKwh.toLocaleString('en-IN', { maximumFractionDigits: 0 })} 
+                                            unit=" kWh" 
+                                            color="#3B82F6" 
+                                            icon={Power} 
+                                        />
+                                        <StatCard 
+                                            title="New CO₂ Emissions" 
+                                            value={scenarioMetrics.totalEmissions.toLocaleString('en-IN', { maximumFractionDigits: 0 })} 
+                                            unit=" kg" 
+                                            color="#10B981" 
+                                            icon={Leaf} 
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </SectionCard>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1167,27 +719,6 @@ const CostAnalysisSubTab = ({ currentPlant, totalPlantEnergy, renewableBreakdown
                     </BarChart>
                 </ResponsiveContainer>
             </SectionCard>
-
-            {/* <SectionCard title="Estimated Cost per Process">
-                 <div className="overflow-x-auto">
-                    <table className="min-w-full bg-white rounded-lg">
-                        <thead>
-                            <tr className="bg-gray-100 text-left text-sm font-medium uppercase tracking-wider">
-                                <th className="px-4 py-3 rounded-tl-lg">Process</th>
-                                <th className="px-4 py-3 rounded-tr-lg">Estimated Cost</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200">
-                           {processCostData.sort((a,b) => b.cost - a.cost).map(item => (
-                             <tr key={item.name} className="hover:bg-gray-50">
-                               <td className="px-4 py-3 font-medium">{item.name}</td>
-                               <td className="px-4 py-3 font-bold">{formatCurrency(item.cost)}</td>
-                             </tr>
-                           ))}
-                        </tbody>
-                    </table>
-                </div>
-            </SectionCard> */}
         </div>
     );
 };
@@ -1201,20 +732,12 @@ const MonitoringTab = ({ currentPlant }) => {
   const [selectedProcess, setSelectedProcess] = useState(null);
   const [processEnergy, setProcessEnergy] = useState(0);
   const [processEmissions, setProcessEmissions] = useState(0);
-  // const [startDate, setStartDate] = useState(() => {
-  //       const today = new Date();
-  //       return today.toISOString().split('T')[0];
-  //   });
-  //   const [endDate, setEndDate] = useState(() => {
-  //       const today = new Date();
-  //       return today.toISOString().split('T')[0];
-  //   });
-  //   const [period, setPeriod] = useState('1D');
+
   
-const [startDate, setStartDate] = useState('2025-06-01');
+const [startDate, setStartDate] = useState('2025-07-04');
 
   // Set the default end date to June 7th of the current year.
-  const [endDate, setEndDate] = useState('2025-06-07');
+  const [endDate, setEndDate] = useState('2025-07-11');
   
   // Set the period to 'Custom' so that '1D', '1W', or '1M' aren't highlighted by default.
   const [period, setPeriod] = useState('Custom'); 
@@ -1253,7 +776,7 @@ const [startDate, setStartDate] = useState('2025-06-01');
   useEffect(() => {
   if (!currentPlant?.plantId) return;
 
-  fetch(`http://localhost:8080/api/plants/${plantId}`)
+  fetch(`https://energy-forecasting-production.up.railway.app/api/plants/${plantId}`)
     .then(res => res.json())
     .then(data => {
       setProcessList(data); // directly keep it as array of process objects
@@ -1265,7 +788,7 @@ const [startDate, setStartDate] = useState('2025-06-01');
   useEffect(() => {
   if (!currentPlant?.plantId) return;
 
-  fetch('http://localhost:8080/api/plants', {
+  fetch('https://energy-forecasting-production.up.railway.app/api/plants', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -1289,7 +812,7 @@ const nonRenewable = 100 - totalRenewable;
 useEffect(() => {
   if (!selectedProcess?.processId || !startDate || !endDate) return;
 
-  fetch('http://localhost:8080/api/processes', {
+  fetch('https://energy-forecasting-production.up.railway.app/api/processes', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -1321,7 +844,7 @@ useEffect(() => {
 
     for (const process of processList) {
       try {
-        const res = await fetch('http://localhost:8080/api/processes', {
+        const res = await fetch('https://energy-forecasting-production.up.railway.app/api/processes', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1356,7 +879,7 @@ useEffect(() => {
 }, [processList, startDate, endDate]);
 
 const fetchEnergyForProcessByDate = async (processId, date) => {
-  const response = await fetch('http://localhost:8080/api/processes', {
+  const response = await fetch('https://energy-forecasting-production.up.railway.app/api/processes', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -1367,6 +890,19 @@ const fetchEnergyForProcessByDate = async (processId, date) => {
   });
   const data = await response.json();
   return data.totalEnergyConsumedKWh || 0;
+};
+const fetchEnergyForPlantByDate = async (Id, date) => {
+  const response = await fetch('https://energy-forecasting-production.up.railway.app/api/plants', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      Id,
+      startDate: date,
+      endDate:  date
+    })
+  });
+  const data = await response.json();
+  return data;
 };
 
 const [historicalData, setHistoricalData] = useState([]);
@@ -1415,7 +951,7 @@ useEffect(() => {
 
   const fetchMonthlySummary = async () => {
     try {
-      const res = await fetch(`http://localhost:8080/api/plants/monthly/${currentPlant.plantId}`);
+      const res = await fetch(`https://energy-forecasting-production.up.railway.app/api/plants/monthly/${currentPlant.plantId}`);
       const data = await res.json();
 
       const processWise = data.processWiseMonthly;
@@ -1469,7 +1005,7 @@ useEffect(() => {
       // Fetch emissions for each process on this date
       for (const process of processList) {
         try {
-          const response = await fetch('http://localhost:8080/api/processes', {
+          const response = await fetch('https://energy-forecasting-production.up.railway.app/api/processes', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1552,7 +1088,7 @@ useEffect(() => {
     if (!selectedProcess?.processId) return;
 
     try {
-      const response = await fetch('http://localhost:8080/api/equipment-readings', {
+      const response = await fetch('https://energy-forecasting-production.up.railway.app/api/equipment-readings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1615,15 +1151,12 @@ useEffect(() => {
 
   const [plants, setPlants] = useState([]);
   const [plantNameToIdMap, setPlantNameToIdMap] = useState({});
-  const [selectedPlantsForComparison, setSelectedPlantsForComparison] = useState([]);
-  const [comparisonProcess, setComparisonProcess] = useState('');
-  const [processesForSelectionn, setProcessesForSelectionn] = useState([]);
-  const [plantComparisonData, setPlantComparisonData] = useState([]);
+  
 
   useEffect(() => {
     const fetchPlants = async () => {
       try {
-        const res = await fetch('http://localhost:8080/api/plants');
+        const res = await fetch('https://energy-forecasting-production.up.railway.app/api/plants');
         const data = await res.json();
         const nameIdMap = {};
         const plantNames = data.map(p => {
@@ -1640,30 +1173,120 @@ useEffect(() => {
     fetchPlants();
   }, []);
 
-  useEffect(() => {
+  const [selectedPlantsForComparison, setSelectedPlantsForComparison] = useState([]);
+  
+
+useEffect(() => {
+  if (plants && plants.length >= 3) {
+    setSelectedPlantsForComparison([
+      'Mahindra Vehicle Manufacturing Plant- Chakan',
+      'Mahindra Vehicle Manufacturing Plant- Nashik', 
+      'Mahindra Vehicle Manufacturing Plant- Haridwar',
+      'Mahindra Vehicle Manufacturing Plant- Zaheerabad'
+    ]);
+  }
+}, [plants]);
+  const [comparisonProcess, setComparisonProcess] = useState('');
+  const [processesForSelectionn, setProcessesForSelectionn] = useState([]);
+  const [plantComparisonData, setPlantComparisonData] = useState([]);
+
+// Add this helper function for plant total data
+
+
+// FIXED: Calculate plant totals by summing all processes (like in trends code)
+const fetchPlantTotalByDate = async (plantId, date, processList) => {
+  try {
+    let totalEnergy = 0;
+    let totalCO2 = 0;
+
+    // Sum up all processes for this plant (same approach as trends code)
+    for (const process of processList) {
+      const processEnergy = await fetchEnergyForProcessByDate(process.processId, date);
+      totalEnergy += processEnergy;
+
+      // Fetch CO2 for this process
+      try {
+        const response = await fetch('https://energy-forecasting-production.up.railway.app/api/processes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            processId: process.processId,
+            startDate: date,
+            endDate: date
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          totalCO2 += data.totalCo2EmissionsKg || 0;
+        }
+      } catch (error) {
+        console.error(`Error fetching CO2 for process ${process.processId} on ${date}:`, error);
+      }
+    }
+
+    return {
+      totalEnergy: parseFloat(totalEnergy.toFixed(2)),
+      totalCO2: parseFloat(totalCO2.toFixed(2))
+    };
+  } catch (error) {
+    console.error(`Error calculating plant total for ${plantId} on ${date}:`, error);
+    return { totalEnergy: 0, totalCO2: 0 };
+  }
+};
+
+useEffect(() => {
   const fetchComparisonData = async () => {
     if (selectedPlantsForComparison.length === 0 || !startDate || !endDate) {
-      console.log('Missing required data for comparison');
+      //console.log('Missing required data for comparison');
       return;
     }
 
     try {
-      console.log('Starting comparison data fetch...');
+      //console.log('Starting comparison data fetch...');
       
       const start = new Date(startDate);
       const end = new Date(endDate);
-      const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+      const dateArray = [];
+
+      // Generate date array (same as trends code)
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        dateArray.push(new Date(d));
+      }
+
+      //console.log(`Fetching data for ${dateArray.length} days, ${selectedPlantsForComparison.length} plants`);
+
+      // FIXED: Fetch processes for the first plant BEFORE the main loop
+      let availableProcesses = processesForSelectionn;
+      if (availableProcesses.length === 0 && selectedPlantsForComparison.length > 0) {
+        const firstPlantId = plantNameToIdMap[selectedPlantsForComparison[0]];
+        if (firstPlantId) {
+          try {
+            //console.log(`Fetching processes for plant ${firstPlantId}`);
+            const processRes = await fetch(`https://energy-forecasting-production.up.railway.app/api/plants/${firstPlantId}`);
+            if (processRes.ok) {
+              const processes = await processRes.json();
+              const processNames = processes.map(p => p.processName);
+              setProcessesForSelectionn(processNames);
+              availableProcesses = processNames;
+              
+              // Set default comparison process if not set
+              if (!comparisonProcess && processNames.length > 0) {
+                setComparisonProcess(processNames[0]);
+              }
+            }
+          } catch (error) {
+            console.error(`Error fetching processes:`, error);
+          }
+        }
+      }
 
       // Initialize data structure
-      const newData = Array.from({ length: days }).map((_, idx) => {
-        const date = new Date(start);
-        date.setDate(start.getDate() + idx);
-        return { date: date.toISOString().split('T')[0] };
-      });
+      const newData = dateArray.map(date => ({
+        date: date.toISOString().split('T')[0]
+      }));
 
-      console.log(`Fetching data for ${days} days, ${selectedPlantsForComparison.length} plants`);
-
-      // Process each plant
+      // Process each plant (similar to your trends logic)
       for (const plantName of selectedPlantsForComparison) {
         const plantId = plantNameToIdMap[plantName];
         
@@ -1672,26 +1295,17 @@ useEffect(() => {
           continue;
         }
 
-        console.log(`Processing plant: ${plantName} (ID: ${plantId})`);
+        //console.log(`Processing plant: ${plantName} (ID: ${plantId})`);
 
-        // Fetch processes for this plant if not already done
-        if (processesForSelectionn.length === 0) {
-          try {
-            console.log(`Fetching processes for plant ${plantId}`);
-            const processRes = await fetch(`http://localhost:8080/api/plants/${plantId}`);
-            if (processRes.ok) {
-              const processes = await processRes.json();
-              const processNames = processes.map(p => p.processName);
-              setProcessesForSelectionn(processNames);
-              
-              // Set default comparison process if not set
-              if (!comparisonProcess && processNames.length > 0) {
-                setComparisonProcess(processNames[0]);
-              }
-            }
-          } catch (error) {
-            console.error(`Error fetching processes for plant ${plantName}:`, error);
+        // Get processes for this plant
+        let plantProcesses = [];
+        try {
+          const processRes = await fetch(`https://energy-forecasting-production.up.railway.app/api/plants/${plantId}`);
+          if (processRes.ok) {
+            plantProcesses = await processRes.json();
           }
+        } catch (error) {
+          console.error(`Error fetching processes for plant ${plantId}:`, error);
         }
 
         // Fetch data for each date
@@ -1699,68 +1313,53 @@ useEffect(() => {
           const date = newData[i].date;
           
           try {
-            // Fetch total plant data
-            console.log(`Fetching total data for ${plantName} on ${date}`);
-            const totalRes = await fetch(`http://localhost:8080/api/plants`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ plantId, startDate: date, endDate: date })
-            });
+            // FIXED: Calculate plant total by summing all processes (like trends code)
+            const plantTotal = await fetchPlantTotalByDate(plantId, date, plantProcesses);
+            newData[i][`${plantName}_totalEnergy`] = plantTotal.totalEnergy;
+            newData[i][`${plantName}_totalCO2`] = plantTotal.totalCO2;
             
-            if (totalRes.ok) {
-              const total = await totalRes.json();
-              console.log(`Total data for ${plantName} on ${date}:`, total);
-              
-              // Ensure we have numeric values
-              newData[i][`${plantName}_totalEnergy`] = Number(total.totalEnergyConsumedkWh) || 0;
-              newData[i][`${plantName}_totalCO2`] = Number(total.totalEmissionsCO2) || 0;
-            } else {
-              console.warn(`Failed to fetch total data for ${plantName} on ${date}: ${totalRes.status}`);
-              newData[i][`${plantName}_totalEnergy`] = 0;
-              newData[i][`${plantName}_totalCO2`] = 0;
-            }
+            //console.log(`Plant total for ${plantName} on ${date}: Energy=${plantTotal.totalEnergy}, CO2=${plantTotal.totalCO2}`);
 
-            // Fetch process-specific data if process is selected
+            // FIXED: Fetch process-specific data using the same approach as trends
             if (comparisonProcess) {
-              try {
-                // Get process details
-                const processRes = await fetch(`http://localhost:8080/api/plants/${plantId}`);
-                if (processRes.ok) {
-                  const processes = await processRes.json();
-                  const selectedProc = processes.find(p => p.processName === comparisonProcess);
+              const selectedProc = plantProcesses.find(p => p.processName === comparisonProcess);
+              
+              if (selectedProc) {
+                //console.log(`Fetching process data for ${plantName} - ${comparisonProcess} on ${date}`);
+                
+                // Fetch process energy
+                const processEnergy = await fetchEnergyForProcessByDate(selectedProc.processId, date);
+                newData[i][`${plantName}_${comparisonProcess}`] = processEnergy;
+                
+                // Fetch process CO2 emissions
+                try {
+                  const procRes = await fetch('https://energy-forecasting-production.up.railway.app/api/processes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                      processId: selectedProc.processId, 
+                      startDate: date, 
+                      endDate: date 
+                    })
+                  });
                   
-                  if (selectedProc) {
-                    console.log(`Fetching process data for ${plantName} - ${comparisonProcess} on ${date}`);
-                    const procRes = await fetch(`http://localhost:8080/api/processes`, {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ 
-                        processId: selectedProc.processId, 
-                        startDate: date, 
-                        endDate: date 
-                      })
-                    });
+                  if (procRes.ok) {
+                    const procData = await procRes.json();
+                    // FIXED: Use the correct property name
+                    const processCO2 = procData.totalCo2EmissionsKg || 0;
+                    newData[i][`${plantName}_${comparisonProcess}_CO2`] = processCO2;
                     
-                    if (procRes.ok) {
-                      const procData = await procRes.json();
-                      console.log(`Process data for ${plantName} - ${comparisonProcess} on ${date}:`, procData);
-                      
-                      // Ensure we have numeric values
-                      newData[i][`${plantName}_${comparisonProcess}`] = Number(procData.totalEnergyConsumedkWh) || 0;
-                      newData[i][`${plantName}_${comparisonProcess}_CO2`] = Number(procData.totalEmissionsCO2) || 0;
-                    } else {
-                      console.warn(`Failed to fetch process data for ${plantName} - ${comparisonProcess} on ${date}: ${procRes.status}`);
-                      newData[i][`${plantName}_${comparisonProcess}`] = 0;
-                      newData[i][`${plantName}_${comparisonProcess}_CO2`] = 0;
-                    }
+                    //console.log(`Process data for ${plantName} - ${comparisonProcess} on ${date}: Energy=${processEnergy}, CO2=${processCO2}`);
                   } else {
-                    console.warn(`Process ${comparisonProcess} not found for plant ${plantName}`);
-                    newData[i][`${plantName}_${comparisonProcess}`] = 0;
+                    console.warn(`Failed to fetch process CO2 for ${plantName} - ${comparisonProcess} on ${date}`);
                     newData[i][`${plantName}_${comparisonProcess}_CO2`] = 0;
                   }
+                } catch (error) {
+                  console.error(`Error fetching process CO2 for ${plantName} - ${comparisonProcess} on ${date}:`, error);
+                  newData[i][`${plantName}_${comparisonProcess}_CO2`] = 0;
                 }
-              } catch (error) {
-                console.error(`Error fetching process data for ${plantName} - ${comparisonProcess} on ${date}:`, error);
+              } else {
+                console.warn(`Process ${comparisonProcess} not found for plant ${plantName}`);
                 newData[i][`${plantName}_${comparisonProcess}`] = 0;
                 newData[i][`${plantName}_${comparisonProcess}_CO2`] = 0;
               }
@@ -1779,7 +1378,7 @@ useEffect(() => {
         }
       }
 
-      console.log('Final comparison data:', newData);
+      //console.log('Final comparison data:', newData);
       setPlantComparisonData(newData);
       
     } catch (error) {
@@ -1789,63 +1388,7 @@ useEffect(() => {
 
   fetchComparisonData();
 }, [selectedPlantsForComparison, startDate, endDate, comparisonProcess, plantNameToIdMap]);
-  const DebugInfo = () => (
-  <div className="bg-gray-800 p-4 rounded mb-4 border border-gray-600">
-    <h5 className="text-white mb-3 font-semibold">🐛 Debug Info:</h5>
-    <div className="space-y-2">
-      <p className="text-gray-300">
-        <span className="text-blue-400 font-medium">Selected Plants:</span> 
-        {selectedPlantsForComparison.length > 0 
-          ? selectedPlantsForComparison.join(', ') 
-          : '❌ None selected'
-        }
-      </p>
-      <p className="text-gray-300">
-        <span className="text-blue-400 font-medium">Date Range:</span> 
-        {startDate && endDate 
-          ? `${startDate} to ${endDate}` 
-          : '❌ Not set'
-        }
-      </p>
-      <p className="text-gray-300">
-        <span className="text-blue-400 font-medium">Comparison Process:</span> 
-        {comparisonProcess || '❌ Not selected'}
-      </p>
-      <p className="text-gray-300">
-        <span className="text-blue-400 font-medium">Data Points:</span> 
-        {plantComparisonData.length} records
-      </p>
-      <p className="text-gray-300">
-        <span className="text-blue-400 font-medium">Available Processes:</span> 
-        {processesForSelectionn.length > 0 
-          ? processesForSelectionn.join(', ') 
-          : '❌ None loaded'
-        }
-      </p>
-      <p className="text-gray-300">
-        <span className="text-blue-400 font-medium">Plant Name-ID Map:</span> 
-        {Object.keys(plantNameToIdMap).length} plants mapped
-      </p>
-      {plantComparisonData.length > 0 && (
-        <details className="mt-3">
-          <summary className="text-yellow-400 cursor-pointer font-medium">
-            📊 Sample Data (click to expand)
-          </summary>
-          <pre className="text-xs text-gray-400 mt-2 overflow-auto max-h-32 bg-gray-900 p-2 rounded">
-            {JSON.stringify(plantComparisonData.slice(0, 2), null, 2)}
-          </pre>
-        </details>
-      )}
-    </div>
-  </div>
-);
-
-  const [liveStartDate, setLiveStartDate] = useState(formatDate(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)));
-  const [liveEndDate, setLiveEndDate] = useState(formatDate(new Date()));
   
-  // State for date ranges
-  
-  const [livePeriod, setLivePeriod] = useState('1W');
   // New state for Graph section
   const [graphView, setGraphView] = useState('Energy Trends per Process');
   
@@ -1855,8 +1398,8 @@ useEffect(() => {
         { name: 'Live', icon: Activity },
         { name: 'Trends', icon: BarChart3 },
         { name: 'Emissions', icon: Cloud },
-        // { name: 'Comparison', icon: Building2 },
-        { name: 'Cost Analysis', icon: DollarSign }, // Add the new sub-tab
+        { name: 'Cost Analysis', icon: DollarSign },
+        { name: 'Comparison', icon: Building2 }, // Add the new sub-tab
     ];
   
   const activeSubNavStyle = {
@@ -1968,8 +1511,8 @@ useEffect(() => {
                                         <div className="bg-green-500 h-4 rounded-full" style={{ width: `${(totalRenewable).toFixed(2)}%` }}></div>
                                     </div>
                                     <div className="flex justify-between text-sm font-medium">
-                                        <p className="text-green-600">Renewable: {(totalRenewable).toFixed(2)}% ({renewableBreakdown.total} kWh)</p>
-                                        <p className="text-orange-600">Non-Renewable: {(nonRenewable).toFixed(2)}% ({(totalPlantEnergy-renewableBreakdown.total).toFixed(2)} kWh)</p>
+                                        <p className="text-green-600">Renewable: {(totalRenewable).toFixed(2)}% ({(processEnergy*totalRenewable/100).toFixed(2)} kWh)</p>
+                                        <p className="text-orange-600">Non-Renewable: {(nonRenewable).toFixed(2)}% ({(processEnergy-(processEnergy*totalRenewable/100)).toFixed(2)} kWh)</p>
                                     </div>
                                 </div> 
                                 
@@ -2195,14 +1738,22 @@ useEffect(() => {
 
                         </div>
                     )}
-
-                    {/* {activeSubTab === 'Comparison' && (
+                    {activeSubTab === 'Cost Analysis' && (
+                            <CostAnalysisSubTab
+                                currentPlant={currentPlant}
+                                totalPlantEnergy={totalPlantEnergy}
+                                renewableBreakdown={renewableBreakdown}
+                                processList={processList}
+                                historicalData={historicalData}
+                            />
+                    )}
+                    {activeSubTab === 'Comparison' && (
                       <div className="space-y-6">
                             <SectionCard title="Plants Comparison">
                               <div className="flex flex-col space-y-4 mb-4">
                                 <Dropdown label="Plants for Comparison" options={plants} selected={selectedPlantsForComparison} onChange={setSelectedPlantsForComparison} isMulti={true} />
                               </div>
-                               <DebugInfo />
+                               
                               <h4 className="text-lg font-semibold mb-2" style={{color: TM_DARK_BLUE}}>Total Energy Consumption Comparison</h4>
                               <ResponsiveContainer width="100%" height={250}>
                                 <LineChart data={plantComparisonData}>
@@ -2260,34 +1811,119 @@ useEffect(() => {
                               </ResponsiveContainer>
                             </SectionCard>
                       </div>
-                    )} */}
-                    {/* Render the new Cost Analysis tab */}
-                        {activeSubTab === 'Cost Analysis' && (
-                            <CostAnalysisSubTab
-                                currentPlant={currentPlant}
-                                totalPlantEnergy={totalPlantEnergy}
-                                renewableBreakdown={renewableBreakdown}
-                                processList={processList}
-                                historicalData={historicalData}
-                            />
-                        )}
+                    )}
                 </main>
             </div>
         </div>
     </div>
   );
 };
-const AlertAndAnomalyContent = () => {
-    const [alerts, setAlerts] = useState(generateAlerts(20));
-    const [filter, setFilter] = useState('All'); // All, Critical, Warning, Info
+
+const AlertAndAnomalyContent = ({currentPlant}) => {
+    const plantId = currentPlant?.plantId;
+    const [alerts, setAlerts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [filter, setFilter] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
 
+    // Debug logs
+    console.log('DEBUG: currentPlant:', currentPlant);
+    console.log('DEBUG: plantId extracted:', plantId);
+
+    useEffect(() => {
+        const fetchAlerts = async () => {
+            console.log('DEBUG: fetchAlerts called with plantId:', plantId);
+            setLoading(true);
+            setError(null);
+
+            try {
+                const response = await fetch('https://bot-k83f.onrender.com/predictor/prediction/80b6ed2089824de4943bc001186ea85f', 
+                  {
+                    method:'GET',
+                    headers: {
+                        'Authorization': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWM5YzEwMDE2YzkxNDU3N2JiZGE0YmE0MTM2MWU0MDAifQ.oXm8AW5PTpK_7OgX0I8mYdFSYjEe2CoZ-2OBwYAVUME',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                console.log('DEBUG: API Response status:', response.status);
+                console.log('DEBUG: API Response ok:', response.ok);
+
+                if (!response.ok) {
+                    throw new Error(`API call failed with status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('DEBUG: Raw API data:', data);
+                console.log('DEBUG: Number of predictions:', data.predictions?.length || 0);
+
+                if (data.predictions && data.predictions.length > 0) {
+                    console.log('DEBUG: First prediction sample:', data.predictions[0]);
+                    console.log('DEBUG: First prediction processId:', data.predictions[0]?.prediction?.processId);
+                    
+                    // Log all processIds to understand the pattern
+                    data.predictions.forEach((alert, index) => {
+                        const processId = alert.prediction.processId;
+                        const splitResult = processId.split('-')[0];
+                        console.log(`DEBUG: Prediction ${index}: processId=${processId}, split result=${splitResult}`);
+                    });
+                }
+                
+                const formattedAlerts = data.predictions
+                    .filter(alert => {
+                        const alertPlantId = alert.prediction.processId.split('-')[0];
+                        const matches = alertPlantId === plantId;
+                        console.log(`DEBUG: Filtering - alertPlantId: ${alertPlantId}, plantId: ${plantId}, matches: ${matches}`);
+                        return matches;
+                    })
+                    .map(alert => ({
+                        id: alert._id,
+                        severity: alert.prediction.alertType.charAt(0).toUpperCase() + alert.prediction.alertType.slice(1).toLowerCase(),
+                        timestamp: new Date(alert.prediction.date),
+                        type: alert.prediction.category,
+                        description: alert.prediction.description,
+                        affectedProcess: alert.prediction.equipmentName,
+                        status: alert.prediction.acknowledged ? 'Acknowledged' : 'New',
+                        recommendation: alert.prediction.recommendedActions,
+                    }));
+
+                console.log('DEBUG: Formatted alerts after filtering:', formattedAlerts);
+                console.log('DEBUG: Number of alerts after filtering:', formattedAlerts.length);
+
+                // Sort by status ('New' first), then by timestamp (most recent first)
+                const sortedAlerts = formattedAlerts.sort((a, b) => {
+                    if (a.status === 'New' && b.status !== 'New') return -1;
+                    if (a.status !== 'New' && b.status === 'New') return 1;
+                    return b.timestamp - a.timestamp;
+                });
+                
+                setAlerts(sortedAlerts);
+
+            } catch (err) {
+                console.error('DEBUG: Error in fetchAlerts:', err);
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (plantId) {
+            fetchAlerts();
+        } else {
+            console.log('DEBUG: No plantId provided, clearing alerts');
+            setAlerts([]);
+            setLoading(false);
+        }
+
+    }, [plantId]);
+
+    // Rest of your component code remains the same...
     const updateAlertStatus = (id, newStatus) => {
         setAlerts(prevAlerts => {
-            const updatedAlerts = prevAlerts.map(alert => 
+            const updatedAlerts = prevAlerts.map(alert =>
                 alert.id === id ? { ...alert, status: newStatus } : alert
             );
-            // Re-sort after status update
             return updatedAlerts.sort((a, b) => {
                 if (a.status === 'New' && b.status !== 'New') return -1;
                 if (a.status !== 'New' && b.status === 'New') return 1;
@@ -2295,13 +1931,13 @@ const AlertAndAnomalyContent = () => {
             });
         });
     };
-
-    const filteredAlerts = alerts
+    
+    const filteredAlerts = useMemo(() => alerts
         .filter(alert => filter === 'All' || alert.severity === filter)
         .filter(alert =>
             alert.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
             alert.affectedProcess.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+        ), [alerts, filter, searchTerm]);
 
     const getSeverityStyles = (severity) => {
         switch (severity) {
@@ -2321,36 +1957,47 @@ const AlertAndAnomalyContent = () => {
         }
     }
 
-    const alertCounts = {
+    const alertCounts = useMemo(() => ({
         Critical: alerts.filter(a => a.severity === 'Critical' && a.status === 'New').length,
         Warning: alerts.filter(a => a.severity === 'Warning' && a.status === 'New').length,
         Info: alerts.filter(a => a.severity === 'Info' && a.status === 'New').length,
+    }), [alerts]);
+
+    console.log('DEBUG: Final alert counts:', alertCounts);
+    console.log('DEBUG: Final filtered alerts:', filteredAlerts);
+
+    if (loading) {
+        return <div className="text-center p-8">Loading alerts...</div>;
+    }
+    
+    if (error) {
+        return <div className="text-center p-8 text-red-600">Error: {error}</div>;
     }
 
     return (
         <div className="space-y-6">
             <SectionCard title="Active Alerts Summary">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <StatCard title="New Critical Alerts" value={alertCounts.Critical} color="#ED1C24" icon={AlertTriangle} />
-                        <StatCard title="New Warning Alerts" value={alertCounts.Warning} color="#F59E0B" icon={AlertTriangle} />
-                        <StatCard title="New Info Alerts" value={alertCounts.Info} color="#00A3E0" icon={Info} />
+                    <StatCard title="New Critical Alerts" value={alertCounts.Critical} color="#ED1C24" icon={AlertTriangle} />
+                    <StatCard title="New Warning Alerts" value={alertCounts.Warning} color="#F59E0B" icon={AlertTriangle} />
+                    <StatCard title="New Info Alerts" value={alertCounts.Info} color="#00A3E0" icon={Info} />
                 </div>
             </SectionCard>
 
             <SectionCard title="Alerts Feed">
                 <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
-                        <div className="flex space-x-2 bg-gray-100 p-1 rounded-lg">
-                            {['All', 'Critical', 'Warning', 'Info'].map(f => (
-                                <button key={f} onClick={() => setFilter(f)} className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${filter === f ? 'text-white shadow-md' : 'bg-transparent hover:bg-gray-200'}`} style={filter === f ? {backgroundColor: TM_RED, color: TM_WHITE} : {color: TM_GRAY_TEXT}}>{f}</button>
-                            ))}
-                        </div>
+                    <div className="flex space-x-2 bg-gray-100 p-1 rounded-lg">
+                        {['All', 'Critical', 'Warning', 'Info'].map(f => (
+                            <button key={f} onClick={() => setFilter(f)} className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${filter === f ? 'text-white shadow-md' : 'bg-transparent hover:bg-gray-200'}`} style={filter === f ? {backgroundColor: TM_RED, color: TM_WHITE} : {color: TM_GRAY_TEXT}}>{f}</button>
+                        ))}
+                    </div>
                     <div className="relative w-full md:w-1/3">
                         <input
                             type="text"
-                            placeholder="Search alerts by description or process..."
+                            placeholder="Search by description or equipment..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                            className="w-full px-4 py-2 bg-white border border-gray-3700 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                             style={{color: TM_DARK_BLUE}}
                         />
                     </div>
@@ -2370,7 +2017,7 @@ const AlertAndAnomalyContent = () => {
                                         </div>
                                         <p style={{color: TM_GRAY_TEXT}} className="mb-2">{alert.description}</p>
                                         <div className="text-xs text-gray-500 flex items-center space-x-4">
-                                            <span className="flex items-center"><Calendar className="h-4 w-4 mr-1"/>{new Date(alert.timestamp).toLocaleString()}</span>
+                                            <span className="flex items-center"><Calendar className="h-4 w-4 mr-1"/>{new Date(alert.timestamp).toLocaleDateString()}</span>
                                             <span className="flex items-center"><SlidersHorizontal className="h-4 w-4 mr-1"/>{alert.type}</span>
                                         </div>
                                     </div>
@@ -2391,7 +2038,7 @@ const AlertAndAnomalyContent = () => {
                         <div className="text-center py-8 text-gray-500">
                             <BellRing className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                             <p className="text-lg font-semibold">No Alerts Found</p>
-                            <p className="text-sm">There are no alerts that match your current filter criteria.</p>
+                            <p className="text-sm">{!plantId ? "Please select a plant to view alerts." : "There are no alerts that match your current filter criteria."}</p>
                         </div>
                     )}
                 </div>
@@ -2401,8 +2048,10 @@ const AlertAndAnomalyContent = () => {
 };
 // Forecasting Tab Content - REBUILT
 const ForecastingTab = ({ currentPlant }) => {
-  const [activeSubTab, setActiveSubTab] = useState('Forecast');
+    const [activeSubTab, setActiveSubTab] = useState('Forecast');
     const plantId = currentPlant?.plantId;
+    
+
     const [processList, setProcessList] = useState([]);
     const [selectedProcess, setSelectedProcess] = useState(null);
     
@@ -2411,7 +2060,7 @@ const ForecastingTab = ({ currentPlant }) => {
     const [period, setPeriod] = useState('1D');
 
     const [equipmentData, setEquipmentData] = useState([]);
-    const [processEnergyTotals, setProcessEnergyTotals] = useState({});
+    const [processEnergy, setProcessEnergy] = useState(0);
     const [totalPlantEnergy, setTotalPlantEnergy] = useState(0);
     const [loading, setLoading] = useState(false);
     
@@ -2457,7 +2106,7 @@ const ForecastingTab = ({ currentPlant }) => {
 
     useEffect(() => {
         if (!currentPlant?.plantId) return;
-        fetch(`http://localhost:8080/api/plants/${plantId}`)
+        fetch(`https://energy-forecasting-production.up.railway.app/api/plants/${plantId}`)
             .then(res => res.json())
             .then(data => {
                 setProcessList(data);
@@ -2468,122 +2117,156 @@ const ForecastingTab = ({ currentPlant }) => {
             .catch(err => console.error("Failed to fetch processes", err));
     }, [currentPlant]);
 
-    const fetchAllProcessEnergies = useCallback(async () => {
-    if (!processList || processList.length === 0) return;
+    useEffect(() => {
+    if (!currentPlant?.plantId) return;
 
-    setLoading(true);
-    const processEnergies = {};
-    let plantTotal = 0;
-    
-    let totalWind = 0, totalSolar = 0, totalHydro = 0;
+    fetch('https://energy-forecasting-production.up.railway.app/api/plants/forecasted', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        plantId,
+        startDate,
+        endDate
+      })
+    })
+      .then(res => res.json())
+      .then(setTotalPlantEnergy)
+      .catch(err => console.error('Error fetching total energy:', err));
+  }, [currentPlant, startDate, endDate]);
 
-    for (const process of processList) {
-        const response = await fetch(`http://localhost:8080/api/equipment-readings/forecasted`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ processId: process.processId, startDate, endDate })
-        });
-        const equipmentList = await response.json();
-        
-        // Aggregate equipment data by equipmentName
-        const equipmentMap = {};
-        
-        equipmentList.forEach(equipment => {
-          const { equipmentName } = equipment;
-          
-          if (!equipmentMap[equipmentName]) {
-              equipmentMap[equipmentName] = {
-                  equipmentName,
-                  processId: equipment.processId,
-                  energyConsumedKWh: 0,
-                  currentSum: 0,
-                  voltageSum: 0,
-                  temperatureSum: 0,
-                  humiditySum: 0,
-                  co2EmissionsSum: 0,
-                  count: 0
-              };
-          }
-          
-          // Sum energy and other values for averaging
-          equipmentMap[equipmentName].energyConsumedKWh += equipment.energyConsumedKWh || 0;
-          equipmentMap[equipmentName].currentSum += equipment.currentAverage || 0;
-          equipmentMap[equipmentName].voltageSum += equipment.voltageAverage || 0;
-          equipmentMap[equipmentName].temperatureSum += equipment.temperatureAverage || 0;
-          equipmentMap[equipmentName].humiditySum += equipment.humidityPercentAverage || 0;
-          equipmentMap[equipmentName].co2EmissionsSum += equipment.co2EmissionsKgAverage || 0;
-          equipmentMap[equipmentName].count++;
+  useEffect(() => {
+  if (!selectedProcess?.processId || !startDate || !endDate) return;
+
+  fetch('https://energy-forecasting-production.up.railway.app/api/processes/forecasted', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      processId: selectedProcess.processId,
+      startDate,
+      endDate
+    })
+  })
+    .then(res => res.json())
+    .then(data => {
+      setProcessEnergy(data.totalEnergyConsumedKWh);
+    })
+    .catch(err => console.error('Error fetching process energy/emissions:', err));
+}, [selectedProcess, startDate, endDate]);
+
+  useEffect(() => {
+  const fetchEquipmentData = async () => {
+    if (!selectedProcess?.processId) return;
+
+    try {
+      const response = await fetch('https://energy-forecasting-production.up.railway.app/api/equipment-readings/forecasted', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          processId: selectedProcess?.processId,
+          startDate,
+          endDate,
+        }),
       });
 
-      // Convert to final format with averages
-      const aggregatedEquipmentList = Object.values(equipmentMap).map(eq => ({
-          equipmentName: eq.equipmentName,
-          processId: eq.processId,
-          energyConsumedKWh: eq.energyConsumedKWh, // Total energy across all dates
-          currentAverage: eq.count > 0 ? eq.currentSum / eq.count : 0,
-          voltageAverage: eq.count > 0 ? eq.voltageSum / eq.count : 0,
-          temperatureAverage: eq.count > 0 ? eq.temperatureSum / eq.count : 0,
-          humidityPercentAverage: eq.count > 0 ? eq.humiditySum / eq.count : 0,
-          co2EmissionsKgAverage: eq.count > 0 ? eq.co2EmissionsSum / eq.count : 0,
+      const data = await response.json();
+      
+      // Group data by equipment name
+      const groupedData = data.reduce((acc, item) => {
+        const equipmentName = item.equipmentName;
+        
+        if (!acc[equipmentName]) {
+          acc[equipmentName] = {
+            name: equipmentName,
+            totalEnergy: 0,
+            voltageSum: 0,
+            currentSum: 0,
+            temperatureSum: 0,
+            humiditySum: 0,
+            co2Sum: 0,
+            count: 0
+          };
+        }
+        
+        acc[equipmentName].totalEnergy += item.energyConsumedKWh;
+        acc[equipmentName].voltageSum += item.voltageAverage;
+        acc[equipmentName].currentSum += item.currentAverage;
+        acc[equipmentName].temperatureSum += item.temperatureAverage;
+        acc[equipmentName].humiditySum += item.humidityPercentAverage;
+        acc[equipmentName].co2Sum += item.co2EmissionsKgAverage;
+        acc[equipmentName].count += 1;
+        
+        return acc;
+      }, {});
+
+      // Convert grouped data to array with calculated averages
+      const processed = Object.values(groupedData).map(equipment => ({
+        name: equipment.name,
+        energy: equipment.totalEnergy, // Sum of all energy consumption
+        voltage: Math.round(equipment.voltageSum / equipment.count), // Average voltage
+        current: Math.round((equipment.currentSum / equipment.count) * 100) / 100, // Average current (2 decimal places)
+        temperature: Math.round((equipment.temperatureSum / equipment.count) * 100) / 100, // Average temperature
+        humidity: Math.round((equipment.humiditySum / equipment.count) * 100) / 100, // Average humidity
+        co2: Math.round((equipment.co2Sum / equipment.count) * 100) / 100, // Average CO2
+        icon: Bolt, // or customize based on equipment name if needed
       }));
-        
-        console.log('Equipment List for process:', process.processName, aggregatedEquipmentList);
-        
-        // Calculate total energy for this process
-        const processEnergy = aggregatedEquipmentList.reduce((total, eq) => total + (eq.energyConsumedKWh || 0), 0);
-        
-        const [windPct = 0, solarPct = 0, hydroPct = 0] = process.renewableEnergyPercentage || [];
-        
-        totalWind += processEnergy * (windPct / 100);
-        totalSolar += processEnergy * (solarPct / 100);
-        totalHydro += processEnergy * (hydroPct / 100);
 
-        processEnergies[process.processId] = {
-            processName: process.processName,
-            totalEnergy: processEnergy,
-            equipmentData: aggregatedEquipmentList,
-        };
-        plantTotal += processEnergy;
+      setEquipmentData(processed);
+    } catch (error) {
+      console.error('Error fetching equipment data:', error);
     }
+  };
 
-    const totalRenewable = totalWind + totalSolar + totalHydro;
-    const totalGrid = Math.max(0, plantTotal - totalRenewable);
+  fetchEquipmentData();
+}, [selectedProcess?.processId, startDate, endDate]);
 
-    setProcessEnergyTotals(processEnergies);
-    setTotalPlantEnergy(plantTotal);
-    setForecastedBreakdown({
-        wind: totalWind,
-        solar: totalSolar,
-        hydro: totalHydro,
-        grid: totalGrid,
-        totalRenewable: totalRenewable,
-    });
+const [renewableBreakdown, setRenewableBreakdown] = useState({
+  wind: 0,
+  solar: 0,
+  hydro: 0,
+  total: 0,
+});
 
-    // Aggregate equipment data across all processes for the selected process
-    if (selectedProcess && processEnergies[selectedProcess.processId]) {
-        const selectedEquipmentData = processEnergies[selectedProcess.processId].equipmentData;
-        console.log('Setting equipment data for selected process:', selectedProcess.processName, selectedEquipmentData);
-        setEquipmentData(selectedEquipmentData);
-    } else if (selectedProcess === null && Object.keys(processEnergies).length > 0) {
-        // If no specific process is selected, show all equipment
-        const allEquipmentData = [];
-        Object.values(processEnergies).forEach(process => {
-            allEquipmentData.push(...process.equipmentData);
+useEffect(() => {
+  const fetchEnergyForAllProcesses = async () => {
+    if (!processList.length || !startDate || !endDate) return;
+
+    let wind = 0, solar = 0, hydro = 0;
+
+    for (const process of processList) {
+      try {
+        const res = await fetch('https://energy-forecasting-production.up.railway.app/api/processes/forecasted', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            processId: process.processId,
+            startDate,
+            endDate,
+          }),
         });
-        console.log('Setting all equipment data:', allEquipmentData);
-        setEquipmentData(allEquipmentData);
-    }
-    setLoading(false);
-}, [processList, startDate, endDate, selectedProcess]);
+        const data = await res.json();
 
-    useEffect(() => {
-        fetchAllProcessEnergies();
-    }, [fetchAllProcessEnergies]);
-    
-    const getSelectedProcessEnergy = () => {
-        if (!selectedProcess || !processEnergyTotals[selectedProcess.processId]) return 0;
-        return processEnergyTotals[selectedProcess.processId].totalEnergy;
-    };
+        const energy = data.totalEnergyConsumedKWh || 0;
+        const [w, s, h] = process.renewableEnergyPercentage || [0, 0, 0];
+
+        wind += (w / 100) * energy;
+        solar += (s / 100) * energy;
+        hydro += (h / 100) * energy;
+
+      } catch (error) {
+        console.error(`Failed to fetch energy for process ${process.processName}`, error);
+      }
+    }
+
+    setRenewableBreakdown({
+      wind: parseFloat(wind.toFixed(2)),
+      solar: parseFloat(solar.toFixed(2)), 
+      hydro: parseFloat(hydro.toFixed(2)),
+      total: parseFloat((wind + solar + hydro).toFixed(2)),
+    });
+  };
+
+  fetchEnergyForAllProcesses();
+}, [processList, startDate, endDate]);
 
     // --- Cost Calculation Logic ---
     const location = currentPlant?.city;
@@ -2592,10 +2275,10 @@ const ForecastingTab = ({ currentPlant }) => {
     
     if (costs) {
         currencySymbol = costs.currencySymbol;
-        costFromGrid = forecastedBreakdown.grid * costs.grid;
-        const costFromWind = forecastedBreakdown.wind * costs.wind;
-        const costFromSolar = forecastedBreakdown.solar * costs.solar;
-        const costFromHydro = forecastedBreakdown.hydro * costs.hydro;
+        costFromGrid = (totalPlantEnergy.toFixed(2) - renewableBreakdown.total) * costs.grid;
+        const costFromWind = renewableBreakdown.wind * costs.wind;
+        const costFromSolar = renewableBreakdown.solar * costs.solar;
+        const costFromHydro = renewableBreakdown.hydro * costs.hydro;
         costFromRenewables = costFromWind + costFromSolar + costFromHydro;
         totalCost = costFromGrid + costFromRenewables;
         avgCostPerKwh = totalPlantEnergy > 0 ? totalCost / totalPlantEnergy : 0;
@@ -2611,58 +2294,10 @@ const ForecastingTab = ({ currentPlant }) => {
     };
     const forecastCostBreakdownData = costs ? [
         { name: 'Utility Supply', cost: parseFloat(costFromGrid.toFixed(2)), fill: '#ef5350' },
-        { name: 'Wind', cost: parseFloat((forecastedBreakdown.wind * costs.wind).toFixed(2)), fill: '#82ca9d' },
-        { name: 'Solar', cost: parseFloat((forecastedBreakdown.solar * costs.solar).toFixed(2)), fill: '#fdd835' },
-        { name: 'Hydro', cost: parseFloat((forecastedBreakdown.hydro * costs.hydro).toFixed(2)), fill: '#4fc3f7' },
+        { name: 'Wind', cost: parseFloat((renewableBreakdown.wind * costs.wind).toFixed(2)), fill: '#82ca9d' },
+        { name: 'Solar', cost: parseFloat((renewableBreakdown.solar * costs.solar).toFixed(2)), fill: '#fdd835' },
+        { name: 'Hydro', cost: parseFloat((renewableBreakdown.hydro * costs.hydro).toFixed(2)), fill: '#4fc3f7' },
     ] : [];
-
-    const allProcessOptions = processes.filter(p => p !== 'Overall Plant');
-    // State for the point-in-time forecast
-    const [forecastDateTime, setForecastDateTime] = useState(getLocalDateTimeString(new Date(Date.now() + 24 * 60 * 60 * 1000))); // Default to 24h ahead
-    const [pointInTimeForecastData, setPointInTimeForecastData] = useState(generatePointInTimeForecast());
-    const [selectedForecastProcess, setSelectedForecastProcess] = useState('Paint');
-
-    // State for KPIs with their own date ranges
-    const [peakDemandStartDate, setPeakDemandStartDate] = useState(formatDate(new Date()));
-    const [peakDemandEndDate, setPeakDemandEndDate] = useState(formatDate(new Date(Date.now() + 24 * 60 * 60 * 1000)));
-    const [emissionsStartDate, setEmissionsStartDate] = useState(formatDate(new Date()));
-    const [emissionsEndDate, setEmissionsEndDate] = useState(formatDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)));
-    
-    // KPIs and other data
-    const [kpiData, setKpiData] = useState({ peakDemand: 1850.55, totalConsumption: 32050.10, forecastedEmissions: 12500.75, mape: 4.21 });
-    // const [weatherConditions, setWeatherConditions] = useState(generateWeatherConditions());
-    const [graphStartTime, setGraphStartTime] = useState(getLocalDateTimeString(new Date()));
-    const [graphEndTime, setGraphEndTime] = useState(getLocalDateTimeString(new Date(new Date().getTime() + 24 * 60 * 60 * 1000)));
-    const [forecastDataAll, setForecastDataAll] = useState([]);
-
-    // Update point-in-time forecast when date/time or plant changes
-    // useEffect(() => {
-    //     setPointInTimeForecastData(generatePointInTimeForecast());
-    //     setWeatherConditions(generateWeatherConditions());
-    // }, [forecastDateTime, currentPlant]);
-    
-    // Update KPIs when their date ranges change
-    useEffect(() => {
-       // In a real app, you'd fetch/recalculate KPIs based on the new date ranges.
-       // Here, we just simulate a change.
-       setKpiData(prev => ({
-           ...prev,
-           peakDemand: parseFloat((1800 + Math.random() * 200).toFixed(2)),
-       }));
-    }, [peakDemandStartDate, peakDemandEndDate]);
-    
-    useEffect(() => {
-        setKpiData(prev => ({
-            ...prev,
-            forecastedEmissions: parseFloat((12000 + Math.random() * 1000).toFixed(2)),
-        }));
-    }, [emissionsStartDate, emissionsEndDate]);
-
-    useEffect(() => {
-        const fullForecast = generateForecastData(new Date(), new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000), allProcessOptions);
-        setForecastDataAll(fullForecast.data);
-    }, [currentPlant]);
-
 
     const forecastSubNavItems = [
       { name: 'Forecast', icon: TrendingUp },
@@ -2680,22 +2315,6 @@ const ForecastingTab = ({ currentPlant }) => {
       color: TM_RED,
     };
     
-    // const { totalPlantEnergy, renewable, nonRenewable } = pointInTimeForecastData;
-    // const totalEnergySource = renewable + nonRenewable;
-    // const plantRenewablePercent = totalEnergySource > 0 ? ((renewable / totalEnergySource) * 100).toFixed(1) : 0;
-    // const plantNonRenewablePercent = totalEnergySource > 0 ? ((nonRenewable / totalEnergySource) * 100).toFixed(1) : 0;
-
-    // const selectedProcessKey = selectedForecastProcess.toLowerCase().replace(/ /g, '');
-    // const selectedProcessData = pointInTimeForecastData[selectedProcessKey];
-
-    // let processRenewablePercent = 0;
-    // let processNonRenewablePercent = 0;
-    // if(selectedProcessData) {
-    //     const processTotalSource = selectedProcessData.renewable + selectedProcessData.nonRenewable;
-    //     processRenewablePercent = processTotalSource > 0 ? ((selectedProcessData.renewable / processTotalSource) * 100).toFixed(1) : 0;
-    //     processNonRenewablePercent = processTotalSource > 0 ? ((selectedProcessData.nonRenewable / processTotalSource) * 100).toFixed(1) : 0;
-    // }
-
     return (
         <div className="p-6 min-h-screen" style={{backgroundColor: TM_LIGHT_GRAY_BG, color: TM_GRAY_TEXT}}>
         <div className="flex flex-col lg:flex-row space-y-6 lg:space-y-0 lg:space-x-6">
@@ -2758,7 +2377,7 @@ const ForecastingTab = ({ currentPlant }) => {
                                         }}
                                     />
                                 </div>
-                                <p className="text-5xl font-bold mb-2" style={{color: TM_DARK_BLUE}}>{getSelectedProcessEnergy().toFixed(2)} <span className="text-3xl" style={{color: TM_GRAY_TEXT}}>kWh</span></p>
+                                <p className="text-5xl font-bold mb-2" style={{color: TM_DARK_BLUE}}>{processEnergy.toFixed(2)} <span className="text-3xl" style={{color: TM_GRAY_TEXT}}>kWh</span></p>
                                 <p className="text-sm mb-4" style={{color: TM_GRAY_TEXT}}>Total Energy Consumption for {selectedProcess?.processName}</p>
                                     
                                     <h4 className="text-lg font-semibold mb-2" style={{color: TM_DARK_BLUE}}>Equipment Load</h4>
@@ -2766,41 +2385,40 @@ const ForecastingTab = ({ currentPlant }) => {
                                         {/* Equipment list rendering here, now properly filtered by equipmentId */}
                                         <ul className="space-y-3">
                                             {equipmentData
-
-                                                .map((equip, index) => (
-                                                    <li key={`${equip.equipmentName}-${index}`}  className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                                                        <div className="flex items-center justify-between mb-2">
-                                                            <span className="font-semibold" style={{color: TM_DARK_BLUE}}>
-                                                                {equip.equipmentName}
-                                                            </span>
-                                                            <span className="font-bold text-xl" style={{color: TM_DARK_BLUE}}>
-                                                                {equip.energyConsumedKWh.toFixed(2)} <span className="text-sm font-normal" style={{color: TM_GRAY_TEXT}}>kWh</span>
-                                                            </span>
-                                                        </div>
-                                                        <div className="flex justify-between text-xs px-1" style={{color: TM_GRAY_TEXT}}>
-                                                            <span className="flex items-center">
-                                                                <Bolt className="h-3 w-3 mr-1 text-yellow-500" />
-                                                                {equip.voltageAverage.toFixed(0)} V
-                                                            </span>
-                                                            <span className="flex items-center">
-                                                                <Sigma className="h-3 w-3 mr-1 text-red-500" />
-                                                                {equip.currentAverage.toFixed(2)} A
-                                                            </span>
-                                                        </div>
-                                                        <div className="flex justify-between text-xs px-1 mt-1" style={{color: TM_GRAY_TEXT}}>
-                                                            <span className="flex items-center">
-                                                                <Thermometer className="h-3 w-3 mr-1 text-orange-500" />
-                                                                {equip.temperatureAverage.toFixed(1)}°C
-                                                            </span>
-                                                            <span className="flex items-center">
-                                                                <Droplet className="h-3 w-3 mr-1 text-blue-500" />
-                                                                {equip.humidityPercentAverage.toFixed(1)}%
-                                                            </span>
-                                                        </div>
-                                                        
-                                                    </li>
-                                                ))
-                                            }
+                                            .filter((equip, index, self) => 
+                                              index === self.findIndex(e => e.name === equip.name)
+                                            )
+                                            .map((equip, index) => (
+                                              <li key={`${equip.name}-${equip.voltage}-${equip.current}`} className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                                                  <div className="flex items-center justify-between mb-2">
+                                                      <span className="font-semibold" style={{color: TM_DARK_BLUE}}>{equip.name}</span>
+                                                      <span className="font-bold text-xl" style={{color: TM_DARK_BLUE}}>
+                                                        {equip.energy.toFixed(2)} <span className="text-sm font-normal" style={{color: TM_GRAY_TEXT}}>kWh</span>
+                                                      </span>
+                                                  </div>
+                                                  <div className="grid grid-cols-2 gap-2 text-xs px-1" style={{color: TM_GRAY_TEXT}}>
+                                                      <span className="flex items-center">
+                                                        <Bolt className="h-3 w-3 mr-1 text-yellow-500" />
+                                                        {equip.voltage} V
+                                                      </span>
+                                                      <span className="flex items-center justify-end">
+                                                        <Thermometer className="h-3 w-3 mr-1 text-orange-500" />
+                                                        {equip.temperature}°C
+                                                      </span>
+                                                      <span className="flex items-center">
+                                                        <Sigma className="h-3 w-3 mr-1 text-red-500" />
+                                                        {equip.current} A
+                                                      </span>
+                                                      <span className="flex items-center justify-end">
+                                                        <Droplets className="h-3 w-3 mr-1 text-blue-500" />
+                                                        {equip.humidity}%
+                                                      </span>
+                                                      
+                                                
+                                                      
+                                                  </div>
+                                              </li>
+                                            ))}
                                     </ul>
                                     {equipmentData.length === 0 && (
                                         <div className="text-center py-8" style={{color: TM_GRAY_TEXT}}>
@@ -2874,10 +2492,10 @@ const ForecastingTab = ({ currentPlant }) => {
                         </SectionCard>
                     )} */}
                     {activeSubTab === 'Alert & Anomaly' && (
-                        <AlertAndAnomalyContent />
+                        <AlertAndAnomalyContent currentPlant={currentPlant} />
                     )}
                     {activeSubTab === 'Scenario Planner' && (
-                        <ScenarioPlannerTab />
+                        <ScenarioPlannerTab currentPlant={currentPlant} startDate={startDate} endDate={endDate} />
                     )}
                  </main>
             </div>
@@ -2896,15 +2514,18 @@ const LLMExplainerTab = () => {
   useEffect(() => {
     const generateAiRecommendations = async () => {
         const prompt = `Based on a hypothetical energy forecast with a potential peak demand, suggest actionable recommendations to optimize energy consumption and potentially reduce emissions.`;
-        const simulatedResponse = `To optimize energy consumption during predicted peaks, consider:
-1. Adjusting non-critical production schedules to off-peak hours.
-2. Pre-cooling/heating facilities during off-peak times to leverage lower energy rates.
-3. Increasing reliance on renewable energy sources if available on-site or through grid purchasing agreements.
-4. Implementing demand-response strategies in coordination with your utility provider to reduce load during high-cost periods.
-5. Performing routine maintenance on energy-intensive equipment to ensure optimal efficiency and prevent unexpected energy surges.
-6. Engaging employees in energy-saving initiatives through awareness campaigns and incentives.`;
+        const simulatedResponse =  `To optimize energy consumption, consider:
+1. Replace high-emission equipment in the Paint Shop—such as older HVAC and curing systems—with energy-efficient alternatives or water-based solutions, as this process shows consistently high CO₂ output.
+
+2. Shift welding operations to daytime hours when solar and wind generation is at its peak, since welding currently relies heavily on non-renewable energy sources.
+
+3. Increase wind energy allocation to the stamping process, which already performs relatively well, to further lower its 24% non-renewable energy dependency and make it a model for clean energy use.
+
+4. Install battery-backed solar units for Quality Control & Testing, where emissions are relatively high, to stabilize load and reduce utility supply dependence during testing surges.
+
+5. Use predictive load balancing on assembly lines to defer non-urgent operations away from high carbon-intensity hours and ensure renewable energy is allocated where emissions are worst.`;
         setAiRecommendations(simulatedResponse);
-    };
+    };  
     generateAiRecommendations();
   }, []);
 
@@ -2957,7 +2578,7 @@ const LLMExplainerTab = () => {
           </ResponsiveContainer>
         </SectionCard>
 
-        <SectionCard title="Prediction Breakdown (e.g., 10 AM Tomorrow)">
+        <SectionCard title="Prediction Breakdown">
           <div className="space-y-4">
             {featureImportance.slice(0, 3).map((feature, index) => (
               <div key={index} className="bg-gray-100 p-4 rounded-lg flex items-center justify-between">
@@ -2968,164 +2589,28 @@ const LLMExplainerTab = () => {
                 </div>
               </div>
             ))}
-            <p className="text-sm text-gray-500 mt-2">
+            {/* <p className="text-sm text-gray-500 mt-2">
               <strong style={{color: TM_DARK_BLUE}}>Interpretation:</strong> For 10 AM tomorrow, outside temperature and production schedule are the primary drivers of the forecast, increasing predicted consumption. Historical load also contributes positively.
-            </p>
+            </p> */}
           </div>
         </SectionCard>
       </div>
-
-      <SectionCard title="Forecast Deviation Analysis">
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={forecastDeviation}>
-            <CartesianGrid strokeDasharray="3 3" stroke={TM_BORDER_GRAY} />
-            <XAxis dataKey="date" stroke={TM_GRAY_TEXT}/>
-            <YAxis stroke={TM_GRAY_TEXT}/>
-            <Tooltip content={<CustomTooltip />} />
-            <Legend />
-            <Line type="monotone" dataKey="forecasted" stroke="#8884d8" name="Forecasted" dot={false} />
-            <Line type="monotone" dataKey="actual" stroke="#82ca9d" name="Actual" dot={false} />
-            <Line type="monotone" dataKey="deviation" stroke="#ffc658" name="Deviation (%)" dot={false} />
-          </LineChart>
-        </ResponsiveContainer>
-        <p className="text-sm text-gray-500 mt-4">
-          <strong style={{color: TM_DARK_BLUE}}>Insights:</strong> Observe periods where the 'Deviation (%)' line shows significant spikes or dips, indicating where the model's predictions varied most from this. This helps identify blind spots or areas for model refinement.
-        </p>
-      </SectionCard>
 
       <SectionCard title="AI-Powered Recommendations">
           <p className="text-sm italic leading-relaxed whitespace-pre-line" style={{color: TM_GRAY_TEXT}}>
               {aiRecommendations}
           </p>
-          <div className="flex justify-end mt-4">
+          {/* <div className="flex justify-end mt-4">
               <button className={`px-4 py-2 text-white rounded-lg hover:opacity-90 transition-opacity duration-200`} style={{backgroundColor: TM_RED}}>
                   Implement Suggestions
               </button>
-          </div>
-      </SectionCard>
-
-      <SectionCard title="Ask the LLM">
-        <div className="flex flex-wrap gap-3 mb-4">
-          <button
-            onClick={() => handlePresetQuestion("Why did the forecast increase this week?")}
-            className={`px-4 py-2 text-white rounded-lg hover:bg-opacity-90 transition-all duration-200 flex items-center space-x-2`}
-            style={{backgroundColor: TM_LIGHT_BLUE}}
-          >
-            <HelpCircle className="h-5 w-5" /> <span>Why did the forecast increase this week?</span>
-          </button>
-          <button
-            onClick={() => handlePresetQuestion("Which factor contributed most to yesterday’s error?")}
-            className={`px-4 py-2 text-white rounded-lg hover:bg-opacity-90 transition-all duration-200 flex items-center space-x-2`}
-            style={{backgroundColor: TM_LIGHT_BLUE}}
-          >
-            <HelpCircle className="h-5 w-5" /> <span>Which factor contributed most to yesterday’s error?</span>
-          </button>
-        </div>
-        <p className="text-sm text-gray-500">Click a question to see the LLM's explanation.</p>
+          </div> */}
       </SectionCard>
     </div>
   );
 };
 
 // AI Copilot Tab Content (Unchanged from previous versions)
-const AICopilotTab = () => {
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
-  const messagesEndRef = useRef(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(scrollToBottom, [messages]);
-
-  const handleSendMessage = async () => {
-    if (input.trim() === '') return;
-
-    const newUserMessage = { sender: 'user', text: input };
-    setMessages(prevMessages => [...prevMessages, newUserMessage]);
-    setInput('');
-
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-    const prompt = `As an energy forecasting AI, answer the following question about automotive manufacturing energy consumption: "${input}"`;
-    let chatHistory = messages.map(msg => ({ role: msg.sender === 'user' ? 'user' : 'model', parts: [{ text: msg.text }] }));
-    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-    const payload = { contents: chatHistory };
-
-    try {
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const result = await response.json();
-      if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
-        const aiResponse = { sender: 'ai', text: result.candidates[0].content.parts[0].text };
-        setMessages(prevMessages => [...prevMessages, aiResponse]);
-      } else {
-        setMessages(prevMessages => [...prevMessages, { sender: 'ai', text: "I couldn't process that. Could you please rephrase?" }]);
-      }
-    } catch (error) {
-      console.error("Error calling LLM API:", error);
-      setMessages(prevMessages => [...prevMessages, { sender: 'ai', text: "I'm sorry, I'm having trouble connecting right now. Please try again later." }]);
-    }
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleSendMessage();
-    }
-  };
-
-  return (
-    <div className="p-6 min-h-screen flex flex-col" style={{backgroundColor: TM_LIGHT_GRAY_BG, color: TM_GRAY_TEXT}}>
-      <SectionCard title="AI Copilot: Your Energy Insights Assistant" className="flex-grow flex flex-col">
-        <div className="flex-grow overflow-y-auto p-4 border border-gray-200 rounded-lg mb-4 bg-gray-50 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
-          {messages.length === 0 && (
-            <p className="text-gray-500 text-center italic">Type a question to get started with your energy copilot!</p>
-          )}
-          {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`flex mb-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div
-                className={`max-w-3/4 p-3 rounded-lg shadow-md ${
-                  msg.sender === 'user'
-                    ? 'text-white'
-                    : 'bg-white border border-gray-200'
-                }`}
-                style={msg.sender === 'user' ? {backgroundColor: TM_RED, color: TM_WHITE} : {color: TM_DARK_BLUE}}
-              >
-                {msg.text}
-              </div>
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
-        <div className="flex">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Ask a question about energy forecast..."
-            className="flex-grow px-4 py-2 rounded-l-lg bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
-            style={{color: TM_DARK_BLUE}}
-          />
-          <button
-            onClick={handleSendMessage}
-            className={`px-6 py-2 text-white rounded-r-lg hover:opacity-90 transition-opacity duration-200 flex items-center justify-center space-x-2`}
-            style={{backgroundColor: TM_RED}}
-          >
-            <MessageSquare className="h-5 w-5" /> <span>Send</span>
-          </button>
-        </div>
-      </SectionCard>
-    </div>
-  );
-};
-
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('Monitoring'); // Default to Forecasting
@@ -3192,7 +2677,7 @@ const App = () => {
           />
         )}
         {activeTab === 'Insights' && <LLMExplainerTab />}
-        {activeTab === 'AI Copilot' && <AICopilotTab />}
+        
       </main>
     </div>
   );

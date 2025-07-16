@@ -1,70 +1,113 @@
-# Getting Started with Create React App
+Of course. Here is a comprehensive README file for your GitHub repository, based on the code you've provided.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# VoltVisor: AI-Powered Energy Intelligence Platform
 
-## Available Scripts
+VoltVisor is a sophisticated web application built with React that provides a comprehensive dashboard for monitoring, forecasting, and analyzing energy consumption in manufacturing plants. It leverages an AI-powered backend to deliver predictive insights, helping businesses optimize energy usage, reduce costs, and minimize their carbon footprint.
 
-In the project directory, you can run:
+## Key Features
 
-### `npm start`
+VoltVisor is organized into three main tabs, each offering a suite of powerful features:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### 1\. Monitoring
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+This tab provides a real-time and historical overview of energy consumption.
 
-### `npm test`
+  * **Live Dashboard**: View the current energy consumption for the entire plant and for individual processes like Painting, Welding, and HVAC.
+  * **Energy Mix**: Instantly see the breakdown of energy from renewable vs. non-renewable sources.
+  * **Historical Trends**: Analyze past energy usage with interactive line and bar charts. You can customize the date range and toggle the visibility of different process lines.
+  * **Emissions Tracking**: Monitor CO₂ emissions with daily trend lines and process-wise stacked bar charts.
+  * **Cost Analysis**: Get a detailed breakdown of energy costs by source (Grid, Wind, Solar, Hydro) based on location-specific rates.
+  * **Plant Comparison**: Benchmark the performance of multiple plants against each other in terms of energy consumption and CO₂ emissions.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 2\. Forecasting
 
-### `npm run build`
+This tab looks to the future, providing predictive analytics and planning tools.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+  * **Energy & Cost Forecasts**: See predicted energy consumption and the associated costs for a selected future period.
+  * **Alerts & Anomaly Detection**: Receive timely alerts for critical issues, warnings, and informational events, such as predicted energy spikes or equipment deviations.
+  * **Scenario Planner**: A powerful simulation tool that allows you to see the impact of:
+      * Increasing or decreasing production volume.
+      * Adjusting the mix of renewable energy sources (Wind, Solar, Hydro).
+      * This helps in making informed decisions to optimize for cost and sustainability.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 3\. Insights
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+This tab leverages a Large Language Model (LLM) to provide qualitative analysis and actionable recommendations.
 
-### `npm run eject`
+  * **Forecast Rationale**: Get plain-English explanations of what's driving the energy forecast, such as weather conditions, production schedules, or historical load.
+  * **Feature Importance**: Visualize which factors are most influential in the energy prediction models.
+  * **AI-Powered Recommendations**: Receive concrete, actionable suggestions for optimizing energy consumption and reducing emissions, tailored to the specific patterns observed in your plant's data.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Tech Stack
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+This project is built with a modern, robust tech stack:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+  * **Frontend**: React
+  * **Styling**: Tailwind CSS
+  * **Data Visualization**: Recharts
+  * **Icons**: Lucide React
+  * **API Communication**: The application fetches data from a custom backend API. All API calls are neatly organized in the `src/apiService.js` file.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Getting Started
 
-## Learn More
+To get a local copy up and running, follow these simple steps.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Prerequisites
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+You need to have Node.js and npm (or yarn) installed on your machine.
 
-### Code Splitting
+### Installation
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+1.  Clone the repo:
+    ```sh
+    git clone https://github.com/rishit-jaiswal/my-voltvisor-app.git
+    ```
+2.  Install NPM packages:
+    ```sh
+    npm install
+    ```
 
-### Analyzing the Bundle Size
+### Running the App
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+To run the app in development mode:
 
-### Making a Progressive Web App
+```sh
+npm start
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Open [http://localhost:3000](https://www.google.com/search?q=http://localhost:3000) to view it in your browser. The page will reload when you make changes.
 
-### Advanced Configuration
+## Backend API
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+This frontend application is designed to work with a backend service that provides all the necessary data. The base URL for the API is `https://energy-forecasting-production.up.railway.app/api`.
 
-### Deployment
+The API provides endpoints for:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+  * Plant and process information
+  * Historical and forecasted energy data
+  * Equipment readings
+  * Monthly summaries
+  * Scenario planning simulations
+  * Alerts and anomalies
 
-### `npm run build` fails to minify
+You can find more details about the API endpoints in the `src/apiService.js` file and the included Postman collection, `MFG.postman_collection.json`.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Project Structure
+
+Here's a brief overview of the key files and directories:
+
+```
+my-voltvisor-app/
+├── public/
+│   ├── index.html
+│   └── ...
+├── src/
+│   ├── App.js             # Main application component, manages tabs and state
+│   ├── apiService.js      # Centralized API request functions
+│   ├── COST_DATA.js       # Cost data for different plant locations
+│   ├── index.css          # Main CSS file for Tailwind CSS
+│   ├── index.js           # Entry point for the React app
+│   └── ...
+├── package.json           # Project dependencies and scripts
+└── README.md              # This file
+```
